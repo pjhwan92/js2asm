@@ -11,6 +11,9 @@ $> python ECMAScriptMain.py [file name]
 
 ## Current progress
 * Syntax pass
+* * do_while
+* * if_then
+* * if_else
 * Primitive type inference
 * Base arithmetic operation
 
