@@ -1,5 +1,5 @@
 # js2asm
-Javascript LLVM FrontEnd targeting Emscripten
+Javascript LLVM FrontEnd targeting Emscripten (personal project)
 
 ## Requirements
 * Python 2.7
