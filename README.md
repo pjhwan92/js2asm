@@ -13,7 +13,7 @@ $> python ECMAScriptMain.py [file name]
 * Syntax pass
  * do_while
  * if_then
-* * if_else
+ * if_else
 * Primitive type inference
 * Base arithmetic operation
 
