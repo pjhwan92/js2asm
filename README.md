@@ -11,8 +11,10 @@ $> python ECMAScriptMain.py [file name]
 
 ## Current progress
 * Syntax pass
+* Primitive type inference
 * Base arithmetic operation
 
 ## ToDo
-* Object Construct
-* 
+* Object
+* String
+* etc
