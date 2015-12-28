@@ -3,6 +3,8 @@ import sys
 from antlr4 import *
 from antlr4.tree.Trees import Trees
 
+import argparse
+
 from ECMAScriptLexer import ECMAScriptLexer
 from ECMAScriptParser import ECMAScriptParser
 from ECMAScriptListener import ECMAScriptListener
@@ -10,16 +12,15 @@ from ECMAScriptCFG import ECMAScriptCFG
 #from ECMAScriptLLVMEmitter import LLVMEmitter
 from ECMAScriptLLVMEmitter import *
 
-def main (argv):
-    argv = '../js2asm_org/wow3.js'
-    input_f = FileStream (argv);
+def main (args):
+    input_f = FileStream (args.input_file[0]);
     lexer = ECMAScriptLexer (input_f);
     stream = CommonTokenStream (lexer);
 
     parser = ECMAScriptParser (stream);
     tree = parser.program ();
 
-    cfg = ECMAScriptCFG (argv)
+    cfg = ECMAScriptCFG (args)
     walker = ParseTreeWalker ()
     walker.walk (cfg, tree)
 
@@ -31,11 +32,15 @@ def main (argv):
         walker.walk (cfg, tree)
     print (cfg.getGraph ())
 
-    emitter = LLVMEmitter (cfg.getGraph ())
+    emitter = LLVMEmitter (cfg.getGraph (), args.output_file)
     walker.walk (emitter, tree)
 
     #for func in module.functions:
     #	func.viewCFG ()
 
 if __name__ == '__main__':
-    main (sys.argv);
+    parser = argparse.ArgumentParser (description='Javascript LLVM Frontend')
+    parser.add_argument ('input_file', metavar='input', type=str, nargs=1, help='javascript input source code')
+    parser.add_argument ('output_file', metavar='output', type=str, nargs='?', default='./', help='LLVM IR output file')
+    args = parser.parse_args ()
+    main (args);

@@ -9,6 +9,7 @@ from ECMAScriptParser import ECMAScriptParser
 from ECMAScriptListener import ECMAScriptListener
 from ECMAScriptCFG import ECMAScriptCFG
 from ECMAScriptCFG import Node
+import os
 
 from llvm import *
 from llvm.core import *
@@ -36,8 +37,9 @@ class LLVMEmitter(ParseTreeListener):
     node_root = None
     func_idx = -1
 
-    def __init__ (self, node_root):
+    def __init__ (self, node_root, output_file):
         self.node_root = node_root
+        self.path = output_file
 
     def recLeaves (self, leaf, end_leaves):
         leaves = []
@@ -124,7 +126,12 @@ class LLVMEmitter(ParseTreeListener):
 
     # Exit a parse tree produced by ECMAScriptParser#program.
     def exitProgram(self, ctx):
-        f = open ('./wow.ll', 'w')
+        path = self.path
+        if os.path.isdir (path):
+            file_name = path + '/wow.ll'
+        else:
+            file_name = path
+        f = open (file_name, 'w')
         f.write (str (module))
         f.close ()
 
