@@ -318,7 +318,7 @@ class LLVMEmitter(ParseTreeListener):
         leaves = []
 
         for start_leaf in ctx.start_leaves:
-            end_leaves = self.recLeaves (start_leaf, ctx.start_leaves)
+            end_leaves = self.recLeaves (start_leaf, stmt.leaves)
             for end_leaf, comp in zip (end_leaves, comps):
                 builder = Builder.new (end_leaf.getBB ())
                 clds = end_leaf.getChild ()
@@ -437,7 +437,14 @@ class LLVMEmitter(ParseTreeListener):
             builder = Builder.new (leaf.bb)
             ret = self.getVal (value, leaf)
 
-            if type (ret.type) is IntegerType:
+            #print type (leaf.getFunc ().type.pointee.return_type)
+            '''if type (ret.type) is IntegerType:
+                if type (ret) is ConstantInt:
+                    ret = Constant.real (Type.float (), float (ctx.expressionSequence ().getText ()))
+                else:
+                    ret = builder.bitcast (ret, Type.float ())'''
+
+            if self.asmType (type(leaf.getFunc ().type.pointee.return_type)) > self.asmType (type (ret.type)):
                 if type (ret) is ConstantInt:
                     ret = Constant.real (Type.float (), float (ctx.expressionSequence ().getText ()))
                 else:
@@ -1080,7 +1087,6 @@ class LLVMEmitter(ParseTreeListener):
                 if self.asmType (type (assignee_val.type)) > self.asmType (type (assigner_val.type)):
                     assigner_val = builder.bitcast (assignee_val.type, assigner_val)
                 else:
-                    print assigner_val, assignee_val
                     assignee_val = builder.bitcast (assigner_val.type, assignee_val)
 
             if '+' in operator:
