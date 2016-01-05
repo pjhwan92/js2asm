@@ -74,8 +74,10 @@ class LLVMEmitter(ParseTreeListener):
             return int_
         elif ty == type (Type.float ()):
             return float_
-        elif ty == string_:
-            return Type.array (Type.int (1))
+        elif ty == type (Type.pointer (Type.int (1))):
+            return string_
+        elif ty == type (Type.pointer (Type.int (32))):
+            return int_array
         else:
             print 'unexpected data type occurs! (' + str (ty) + ')'
 
@@ -161,7 +163,6 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#statement.
     def enterStatement(self, ctx):
-        print ctx.getText ()
         ctx.getChild (0).leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#statement.
@@ -301,10 +302,11 @@ class LLVMEmitter(ParseTreeListener):
             builder = Builder.new (leaf.getBB ())
             f = leaf.getFunc ()
             clds = leaf.getChild ()
-            clds[0].setFunc (f, leaf.getFuncName ())
+            for cld in clds:
+                cld.setFunc (f, leaf.getFuncName ())
             clds[0].setBB (f.append_basic_block ('loop'))
             builder.branch (clds[0].getBB ())
-            leaves.extend (clds)
+            leaves.append (clds[0])
         ctx.start_leaves = list (leaves)
         ctx.statement ().leaves = leaves
         ctx.expressionSequence ().leaves = leaves
@@ -336,11 +338,39 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#WhileStatement.
     def enterWhileStatement(self, ctx):
-        pass
+        seq = ctx.expressionSequence ()
+        seq_leaves = []
+        stmt = ctx.statement ()
+        stmt_leaves = []
+        ctx.nexts = []
+
+        for leaf in ctx.leaves:
+            builder = Builder.new (leaf.getBB ())
+            bb = leaf.getFunc ().append_basic_block ()
+            builder.branch (bb)
+            for cld in leaf.getChild ():
+                cld.setBB (bb)
+                seq_leaves.append (cld)
+                gclds = cld.getChild ()
+                gclds[0].setBB (cld.getFunc ().append_basic_block ())
+                stmt_leaves.append (gclds[0])
+                gclds[1].setBB (cld.getFunc ().append_basic_block ())
+                ctx.nexts.append (gclds[1])
+
+        seq.leaves = seq_leaves
+        stmt.leaves = stmt_leaves
 
     # Exit a parse tree produced by ECMAScriptParser#WhileStatement.
     def exitWhileStatement(self, ctx):
-        pass
+        stmt = ctx.statement ()
+        seq = ctx.expressionSequence ()
+
+        nodes = []
+        for leaf in seq.leaves:
+            builder = Builder.new (seq.getBB ())
+            end_leaves = self.recLeaves (leaf, stmt.leaves)
+            for end_leaf in end_leaves:
+                end_leaf.getBB ()
 
 
     # Enter a parse tree produced by ECMAScriptParser#ForStatement.
@@ -542,8 +572,8 @@ class LLVMEmitter(ParseTreeListener):
                 for arg in leaf.getArg ():
                     ty_arg.append (self.llvmType (arg))
                 ty = self.llvmType (call)
-                if ty == Type.int ():
-                    ty = Type.float ()
+                '''if ty == Type.int ():
+                    ty = Type.float ()'''
                 ty_f.append (Type.function (ty, ty_arg))
         else:
             param_id = []
@@ -851,6 +881,8 @@ class LLVMEmitter(ParseTreeListener):
                 func = self.sym_table_f[leaf.getFunc ()][single.value[0]][str (ty)]
             elif self.sym_table_f['global'].has_key (single.value[0]):
                 func = self.sym_table_f['global'][single.value[0]][str (ty)]
+            else:
+                func = self.sym_table_f['global'][single.value[0]][str (ty)] = module.add_function (declare_ty[single.value[0]])
 
             ctx.value.append (builder.call (func, value))
 
@@ -1045,10 +1077,11 @@ class LLVMEmitter(ParseTreeListener):
             sym = self.sym_table_f[leaf.getFunc ()]
 
             if assigner_val.type != assignee_val.type:
-                if self.asmType (assignee_val.type) > self.asmType (assigner_val.type):
-                    assigner_val = builder.bitcast (assigner_val.type, assigner_val)
+                if self.asmType (type (assignee_val.type)) > self.asmType (type (assigner_val.type)):
+                    assigner_val = builder.bitcast (assignee_val.type, assigner_val)
                 else:
-                    assignee_val = builder.bitcast (assignee_val.type, assignee_val)
+                    print assigner_val, assignee_val
+                    assignee_val = builder.bitcast (assigner_val.type, assignee_val)
 
             if '+' in operator:
                 if assignee_val.type == Type.int ():
@@ -1325,11 +1358,63 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#MultiplicativeExpression.
     def enterMultiplicativeExpression(self, ctx):
-        pass
+        singles = ctx.singleExpression ()
+
+        for single in singles:
+            single.leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#MultiplicativeExpression.
     def exitMultiplicativeExpression(self, ctx):
-        pass
+        ctx.value = []
+        singles = ctx.singleExpression ()
+
+        for leaf, lhs, rhs in zip (ctx.leaves, singles[0].value, singles[1].value):
+            builder = Builder.new (leaf.getBB ())
+            lhs_val = self.getVal (lhs, leaf)
+            rhs_val = self.getVal (rhs, leaf)
+
+            if type (lhs_val) is int:
+                lhs_val = Constant.int (Type.int (), lhs_val)
+            elif type (lhs_val) is float:
+                lhs_val = Constant.real (Type.float (), lhs_val)
+            if type (rhs_val) is int:
+                rhs_val = Constant.int (Type.int (), rhs_val)
+            elif type (rhs_val) is float:
+                rhs_val = Constant.real (Type.float (), rhs_val)
+
+            val = None
+            if type (lhs_val.type) is IntegerType and type (rhs_val.type) is IntegerType:
+                mul = builder.mul
+                div = builder.sdiv
+                rem = builder.srem
+            else:
+                mul = builder.fmul
+                div = builder.fdiv
+                rem = builder.frem
+                if type (lhs_val.type) is IntegerType:
+                    if type (lhs_val) is ConstantInt:
+                        lhs_val = Constant.real (Type.float (), singles[0].getText ())
+                    else:
+                        lhs_val = builder.bitcast (lhs_val, Type.float ())
+                elif type (rhs_val.type) is IntegerType:
+                    if type (rhs_val) is ConstantInt:
+                        rhs_val = Constant.real (Type.float (), singles[1].getText ())
+                    else:
+                        rhs_val = builder.bitcast (rhs_val, Type.float ())
+                else:
+                    val = Constant.real (Type.float (), float ('nan'))
+
+            if val is not None:
+                ctx.value.append (val)
+            else:
+                operator = ctx.getChild (1).getText ()
+                if operator == '*':
+                    ctx.value.append (mul (lhs_val, rhs_val))
+                elif operator == '/':
+                    ctx.value.append (div (lhs_val, rhs_val))
+                else:
+                    ctx.value.append (rem (lhs_val, rhs_val))
+
 
 
     # Enter a parse tree produced by ECMAScriptParser#assignmentOperator.

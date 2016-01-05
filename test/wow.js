@@ -22,7 +22,6 @@ function main () {
 	a = 1;
 	
 	c += wow (1, 3)
-	a += wow ('string', 4)
 	c += wow2 (2)
 
 	c = a * c

@@ -18,6 +18,7 @@ string_ = 4
 int_array = 5
 float_array = 6
 string_array = 7
+obj = 8
 unknown_ = 100
 
 node_root = []
@@ -1106,7 +1107,8 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#MemberDotExpression.
     def enterMemberDotExpression(self, ctx):
-        pass
+        ctx.singleExpression ().leaves = ctx.leaves
+        ctx.identifierName ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#MemberDotExpression.
     def exitMemberDotExpression(self, ctx):
