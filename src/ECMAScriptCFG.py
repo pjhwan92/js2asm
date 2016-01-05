@@ -525,7 +525,8 @@ class ECMAScriptCFG(ParseTreeListener):
             for leaf in ctx.leaves:
                 try:
                     idx = func_info['argv'].index (leaf.getArg ())
-                    func_info['call'][idx] = leaf.getType (ctx.expressionSequence ().single[0])
+                    if func_info['call'][idx] == 100 or leaf.getType (ctx.expressionSequence ().single[0]) > func_info['call'][idx]:
+                        func_info['call'][idx] = leaf.getType (ctx.expressionSequence ().single[0])
                     break
                 except ValueError:
                     func_info['argv'].append (leaf.getArg ())
@@ -864,17 +865,17 @@ class ECMAScriptCFG(ParseTreeListener):
             singles = ctx.singleExpression ()
 
             ctx.single = []
-            for leaf in ctx.leaves:
-                if type (singles[0].single) is list:
-                    ctx.single.append ([])
-                    for single in singles[0].single:
-                        ctx.single[-1].append ([])
+            if type (singles[0].single) is list:
+                for leaf in ctx.leaves:
+                    for l in range (len (ctx.leaves)):
+                        ctx.single.append ([])
                     for single in singles:
                         idx = 0
                         for s in single.single:
-                            ctx.single[-1][idx].append (leaf.getType (s))
+                            ctx.single[idx].append (leaf.getType (s))
                             idx += 1
-                else:
+            else:
+                for leaf in ctx.leaves:
                     for single in singles:
                         ctx.single.append (leaf.getType (single.single))
 
@@ -906,31 +907,38 @@ class ECMAScriptCFG(ParseTreeListener):
     def enterTernaryExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
             ctx.leaves[0].setCtx (ctx)
-            graph = self.graph[self.current_f]
-            parents = ctx.leaves
-            idx = graph['idx']
-            graph['idx'] += 2
+            start_leaves = list (ctx.leaves)
+            nodes1 = []
+            nodes2 = []
+
+            for leaf in ctx.leaves:
+                node = Node (if_node = True)
+                leaf.appendChild (node)
+                nodes1.append (node)
+
+                node = Node ()
+                leaf.appendChild (node)
+                nodes2.append (node)
+
             singles = ctx.singleExpression ()
-
-            singles[1] = []
-            singles[2] = []
-
-            for parent in parents:
-                node1 = Node (idx + 1)
-                parent.appendChild (node1)
-
-                node2 = Node (idx + 2)
-                parent.appendChild (node2)
-
-                singles[1].leaves += [node1]
-                singles[2].leaves += [node2]
+            singles[1].leaves = nodes1
+            singles[2].leaves = nodes2
+            singles[0].leaves = start_leaves
 
             del ctx.leaves[:]
-            ctx.leaves.extend (singles[1].leaves + singles[2].leaves)
+            ctx.leaves.extend (nodes1 + nodes2)
 
     # Exit a parse tree produced by ECMAScriptParser#TernaryExpression.
     def exitTernaryExpression(self, ctx):
-        pass # Have to Implement
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.single = []
+            singles = ctx.singleExpression ()
+
+            for leaf in ctx.leaves:
+                if leaf.isIf ():
+                    ctx.single.append (singles[1].single)
+                else:
+                    ctx.single.append (singles[2].single)
 
 
     # Enter a parse tree produced by ECMAScriptParser#BitOrExpression.

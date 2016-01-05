@@ -19,7 +19,7 @@ function wow2 (a) {
 
 function main () {
 	c = 2;
-	a = 1;
+	a = c == 3? 1 : 2;
 	
 	c += wow (1, 3)
 	c += wow2 (2)

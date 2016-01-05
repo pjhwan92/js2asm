@@ -193,7 +193,7 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#variableStatement.
     def enterVariableStatement(self, ctx):
-        pass
+        ctx.variableDeclarationList ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#variableStatement.
     def exitVariableStatement(self, ctx):
@@ -202,7 +202,10 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#variableDeclarationList.
     def enterVariableDeclarationList(self, ctx):
-        pass
+        decls = ctx.variableDeclaration ()
+
+        for decl in decls:
+            decl.leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#variableDeclarationList.
     def exitVariableDeclarationList(self, ctx):
@@ -211,20 +214,40 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#variableDeclaration.
     def enterVariableDeclaration(self, ctx):
-        pass
+        ctx.initialiser ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#variableDeclaration.
     def exitVariableDeclaration(self, ctx):
-        pass
+        var = str (ctx.Identifier ())
+        assigners = ctx.initialiser ().value
+        ctx.value = []
+
+        for leaf, assigner in zip (ctx.leaves, assigners):
+            builder = Builder.new (leaf.getBB ())
+            sym = self.sym_table_f[leaf.getFunc ()]
+            assignee = sym[var]
+            assignee_val = self.getVal (assignee, leaf)
+            assginer_val = self.getVal (assigner, leaf)
+
+            if type (assignee) is str:
+                alloc = builder.alloca (assigner_val.type, name=var)
+                sym[assignee] = alloc
+            else:
+                if assigner_val.type == assignee_val.type:
+                    alloc = assignee
+                else:
+                    alloc = builder.alloca (assigner.type, name=var)
+                    sym[name] = alloc
+            ctx.value.append (self.setVal (assigner_val, alloc, leaf))
 
 
     # Enter a parse tree produced by ECMAScriptParser#initialiser.
     def enterInitialiser(self, ctx):
-        pass
+        ctx.singleExpression ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#initialiser.
     def exitInitialiser(self, ctx):
-        pass
+        ctx.value = ctx.singleExpression ().value
 
 
     # Enter a parse tree produced by ECMAScriptParser#emptyStatement.
@@ -770,11 +793,44 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#TernaryExpression.
     def enterTernaryExpression(self, ctx):
-        pass
+        singles = ctx.singleExpression ()
+        if_nodes = []
+        else_nodes = []
+
+        for leaf in ctx.leaves:
+            f = leaf.getFunc ()
+            clds = leaf.getChild ()
+            for cld in clds:
+                cld.setFunc (f, leaf.getFuncName ())
+                if cld.isIf ():
+                    if_nodes.append (cld)
+                    cld.setBB (f.append_basic_block ('ter_if'))
+                else:
+                    else_nodes.append (cld)
+                    cld.setBB (f.append_basic_block ('ter_else'))
+        singles[0].leaves = ctx.leaves
+        singles[1].leaves = if_nodes
+        singles[2].leaves = else_nodes
+
 
     # Exit a parse tree produced by ECMAScriptParser#TernaryExpression.
     def exitTernaryExpression(self, ctx):
-        pass
+        singles = ctx.singleExpression ()
+        ctx.value = []
+
+        comp = singles[0]
+        if_ = singles[1]
+        el_ = singles[2]
+
+        for comp_leaf, if_leaf, el_leaf, comp_val, if_val, el_val in zip (ctx.leaves, if_.leaves, el_.leaves, comp.value, if_.value, el_.value):
+            builder = Builder.new (comp_leaf.getBB ())
+            builder.cbranch (comp_val, if_leaf.getBB (), el_leaf.getBB ())
+            ctx.value.append (if_val)
+            ctx.value.append (el_val)
+
+        del ctx.leaves[:]
+        ctx.leaves.extend (if_.leaves)
+        ctx.leaves.extend (el_.leaves)
 
 
     # Enter a parse tree produced by ECMAScriptParser#BitOrExpression.
@@ -799,6 +855,9 @@ class LLVMEmitter(ParseTreeListener):
         assigners = seq.value
         ctx.value = []
 
+        for l in range (len (assigners) - len (assignees)):
+            assignees.append (assignees[0])
+
         for leaf, assignee, assigner in zip (ctx.leaves, assignees, assigners):
             builder = Builder.new (leaf.getBB ())
             assignee_val = self.getVal (assignee, leaf)
@@ -809,7 +868,7 @@ class LLVMEmitter(ParseTreeListener):
                 sym[assignee] = alloc
             else:
                 if assigner_val.type == assignee_val.type:
-                    alloc = assignee_val
+                    alloc = assignee
                 else:
                     name = str (single.getText ())
                     alloc = builder.alloca (assigner.type, name = name)
