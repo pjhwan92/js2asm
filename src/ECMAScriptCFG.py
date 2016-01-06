@@ -18,7 +18,8 @@ string_ = 4
 int_array = 5
 float_array = 6
 string_array = 7
-obj = 8
+obj_ = 8
+function_ = 9
 unknown_ = 100
 
 node_root = []
@@ -135,6 +136,11 @@ class ECMAScriptCFG(ParseTreeListener):
         self.graph = {}
         self.idx = 0
         self.current_f = 'global'
+        global.idx = 0
+
+    def anonymIdx (self):
+        global.idx += 1
+        return str (idx)
 
     def getGraph (self):
         return self.graph
@@ -525,8 +531,9 @@ class ECMAScriptCFG(ParseTreeListener):
             for leaf in ctx.leaves:
                 try:
                     idx = func_info['argv'].index (leaf.getArg ())
-                    if func_info['call'][idx] == 100 or leaf.getType (ctx.expressionSequence ().single[0]) > func_info['call'][idx]:
-                        func_info['call'][idx] = leaf.getType (ctx.expressionSequence ().single[0])
+                    ty = leaf.getType (ctx.expressionSequence ().single)
+                    if func_info['call'][idx] == 100 or ty > func_info['call'][idx]:
+                        func_info['call'][idx] = ty
                     break
                 except ValueError:
                     func_info['argv'].append (leaf.getArg ())
@@ -1213,11 +1220,58 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#
     def enterFunctionExpression(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.parent_f = self.current_f
+            if ctx.Identifier () is not None:
+                self.current_f = str (ctx.Identifier ())
+            else:
+                self.current_f = 'anonym_' + self.anonymIdx ()
+            params = ctx.formalParameterList ()
+
+            if not self.graph.__contains__ (self.current_f):
+                self.graph[self.current_f] = {'name':self.current_f, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False}
+                node_root.append (self.graph[self.current_f])
+                if params is None:
+                    node = Node (root=True)
+                    self.graph[self.current_f]['root'].append (node)
+                    ctx.functionBody ().leaves = [node]
+                    node.setCtx (ctx)
+                else:
+                    self.graph[self.current_f]['argc'] = len (params.Identifier ())
+            else:
+                nodes = []
+                for arg in self.graph[self.current_f]['argv']:
+                    idx = self.graph[self.current_f]['argv'].index (arg)
+                    ret = self.graph[self.current_f]['call'][idx]
+                    if ret == noinfered_ or ret == unknown_:
+                        self.graph[self.current_f]['root'] = [n for n in self.graph[self.current_f]['root'] if n.getArg () != arg]
+                        node = Node (root = True, arg = arg)
+                        if params is not None:
+                            i = 0
+                            if type (arg) is not list:
+                                arg = [arg]
+                            for param in params.Identifier ():
+                                node.setType (str (param), arg[i])
+                                i += 1
+                            self.graph[self.current_f]['inferable'] = False
+                            self.graph[self.current_f]['argc'] = len (params.Identifier ())
+                        nodes.append (node)
+                if len (nodes) != 0:
+                    ctx.functionBody ().leaves = list (nodes)
+                    self.graph[self.current_f]['root'].extend (nodes)
+                    self.graph[self.current_f]['done'] = False
+                    ctx.functionBody ().leaves[0].setCtx (ctx)
 
     # Exit a parse tree produced by ECMAScriptParser#FunctionExpression.
     def exitFunctionExpression(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            if [] in self.graph[self.current_f]['call']:
+                self.graph[self.current_f]['done'] = False
+            elif 100 no in [ret for ret in self.graph[self.current_f]['call']]:
+                self.graph[self.current_f]['done'] = True
+            else:
+                self.graph[self.current_f]['done'] = False
+            ctx.single = function_
 
 
     # Enter a parse tree produced by ECMAScriptParser#BitShiftExpression.
@@ -1403,11 +1457,17 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#NewExpression.
     def enterNewExpression(self, ctx):
-        pass
+        if hasattr_t (ctx, 'leaves'):
+            ctx.singleExpression ().leaves = ctx.leaves
+            if ctx.arguments () is not None:
+                ctx.arguments ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#NewExpression.
     def exitNewExpression(self, ctx):
-        pass
+        if hasattr_t (ctx, 'leaves'):
+            single = ctx.singleExpression ()
+            for leaf in ctx.leaves:
+                leaf.setType (single.single, obj_)
 
 
     # Enter a parse tree produced by ECMAScriptParser#PostDecreaseExpression.

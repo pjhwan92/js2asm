@@ -822,7 +822,8 @@ class LLVMEmitter(ParseTreeListener):
         if_ = singles[1]
         el_ = singles[2]
 
-        for comp_leaf, if_leaf, el_leaf, comp_val, if_val, el_val in zip (ctx.leaves, if_.leaves, el_.leaves, comp.value, if_.value, el_.value):
+        for comp_leaf, if_leaf, el_leaf, comp_val, if_val, el_val \
+                in zip (ctx.leaves, if_.leaves, el_.leaves, comp.value, if_.value, el_.value):
             builder = Builder.new (comp_leaf.getBB ())
             builder.cbranch (comp_val, if_leaf.getBB (), el_leaf.getBB ())
             ctx.value.append (if_val)
