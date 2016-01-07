@@ -1,6 +1,7 @@
 # Generated from ECMAScript.g4 by ANTLR 4.5.1
 import copy
 import sys
+import traceback
 
 from antlr4 import *
 
@@ -20,7 +21,7 @@ float_array = 6
 string_array = 7
 obj_ = 8
 function_ = 9
-unknown_ = 100
+unknown_ = sys.maxint
 
 node_root = []
 
@@ -107,7 +108,8 @@ class Node:
 
     def setType (self, var, ty):
         if type (ty) is list:
-            print ('type of \'ty\' is list!\n\t'+str (ty))
+            print ('type of \'ty\' is list!\n\t'+str (ty)+'\n')
+            traceback.print_stack ()
 
         if type (var) is not str:
             print ('type of \'var\' is not string\n\t'+str (var))
@@ -136,11 +138,10 @@ class ECMAScriptCFG(ParseTreeListener):
         self.graph = {}
         self.idx = 0
         self.current_f = 'global'
-        global.idx = 0
 
     def anonymIdx (self):
-        global.idx += 1
-        return str (idx)
+        self.anonym_idx += 1
+        return str (self.anonym_idx)
 
     def getGraph (self):
         return self.graph
@@ -165,7 +166,7 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#program.
     def enterProgram(self, ctx):
-        pass
+        self.anonym_idx = 0
 
     # Exit a parse tree produced by ECMAScriptParser#program.
     def exitProgram(self, ctx):
@@ -527,12 +528,13 @@ class ECMAScriptCFG(ParseTreeListener):
     def exitReturnStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
             func_info = self.graph[self.current_f]
+            func_info['return'] = True
 
-            for leaf in ctx.leaves:
+            for leaf, single in zip (ctx.leaves, ctx.expressionSequence ().single):
                 try:
                     idx = func_info['argv'].index (leaf.getArg ())
-                    ty = leaf.getType (ctx.expressionSequence ().single)
-                    if func_info['call'][idx] == 100 or ty > func_info['call'][idx]:
+                    ty = leaf.getType (single)
+                    if func_info['call'][idx] == unknown_ or ty > func_info['call'][idx]:
                         func_info['call'][idx] = ty
                     break
                 except ValueError:
@@ -673,7 +675,7 @@ class ECMAScriptCFG(ParseTreeListener):
         params = ctx.formalParameterList ()
 
         if not self.graph.__contains__ (self.current_f):
-            self.graph[self.current_f] = {'name':self.current_f, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False}
+            self.graph[self.current_f] = {'name':self.current_f, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False, 'return':False, 'struct':{}}
             node_root.append (self.graph[self.current_f])
             if params is None:
                 node = Node (root=True)
@@ -689,6 +691,7 @@ class ECMAScriptCFG(ParseTreeListener):
                 ret = self.graph[self.current_f]['call'][idx]
                 if ret == noinfered_ or ret == unknown_:
                     self.graph[self.current_f]['root'] = [n for n in self.graph[self.current_f]['root'] if n.getArg () != arg]
+                    self.graph[self.current_f]['struct'][str (arg)] = {}
                     node = Node (root = True, arg = arg)
                     if params is not None:
                         i = 0
@@ -711,9 +714,9 @@ class ECMAScriptCFG(ParseTreeListener):
         '''if self.graph[self.current_f]['argc'] != 0:
             del self.graph[self.current_f]['argv'][0]
             del self.graph[self.current_f]['call'][0]'''
-        if [] in self.graph[self.current_f]['call']:
+        if [] in self.graph[self.current_f]['call'] and self.graph[self.current_f]['return'] is True:
             self.graph[self.current_f]['done'] = False
-        elif 100 not in [ret for ret in self.graph[self.current_f]['call']]:
+        elif unknown_ not in [ret for ret in self.graph[self.current_f]['call']]:
             self.graph[self.current_f]['done'] = True
         else:
             self.graph[self.current_f]['done'] = False
@@ -765,8 +768,9 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Exit a parse tree produced by ECMAScriptParser#elementList.
     def exitElementList(self, ctx):
-        for single in ctx.singleExpression ()[0].single:
-            ctx.single = single + 3
+        if self.hasattr_t (ctx, 'leaves'):
+            for single in ctx.singleExpression ()[0].single:
+                ctx.single = single + 3
 
 
     # Enter a parse tree produced by ECMAScriptParser#elision.
@@ -780,34 +784,65 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#objectLiteral.
     def enterObjectLiteral(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.propertyNameAndValueList ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#objectLiteral.
     def exitObjectLiteral(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            '''ctx.single = []
+            for leaf in ctx.leaves:
+                leaf.setType ('obj_tmp_ret_' + str (self.anonymIdx ()), obj_)
+                ctx.single.append (ctx.propertyNameAndValueList ().single)'''
+            ctx.single = ctx.propertyNameAndValueList ().single
 
 
     # Enter a parse tree produced by ECMAScriptParser#propertyNameAndValueList.
     def enterPropertyNameAndValueList(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            props = ctx.propertyAssignment ()
+
+            for prop in props:
+                prop.leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#propertyNameAndValueList.
     def exitPropertyNameAndValueList(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            if unknown_ not in [n.single for n in ctx.propertyAssignment ()]:
+                ctx.single = obj_
+            else:
+                ctx.single = unknown_
 
 
     # Enter a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
     def enterPropertyExpressionAssignment(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.propertyName ().leaves = ctx.leaves
+            ctx.singleExpression ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
     def exitPropertyExpressionAssignment(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            prop = ctx.propertyName ().single
+            single = ctx.singleExpression ().single
+            ctx.single = obj_
+
+            for leaf in ctx.leaves:
+                if self.graph[self.current_f]['struct'].has_key (str (leaf.getArg ())):
+                    ty = leaf.getType (single)
+                    if ty != function_:
+                        self.graph[self.current_f]['struct'][str (leaf.getArg ())][prop] = ty
+                    else:
+                        self.graph[self.current_f]['struct'][str (leaf.getArg ())][prop] = single
+                else:
+                    ctx.single = unknown_
 
 
     # Enter a parse tree produced by ECMAScriptParser#PropertyGetter.
     def enterPropertyGetter(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.getter ().leaves = ctx.leaves
+            ctx.functionBody ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#PropertyGetter.
     def exitPropertyGetter(self, ctx):
@@ -816,7 +851,10 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#PropertySetter.
     def enterPropertySetter(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.setter ().leaves = ctx.leaves
+            ctx.propertySetParameterList ().leaves = ctx.leaves
+            ctx.functionBody ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#PropertySetter.
     def exitPropertySetter(self, ctx):
@@ -825,11 +863,19 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#propertyName.
     def enterPropertyName(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            if ctx.identifierName () is not None:
+                ctx.identifierName ().leaves = ctx.leaves
+            if ctx.numericLiteral () is not None:
+                ctx.numericLiteral ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#propertyName.
     def exitPropertyName(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            if ctx.identifierName () is not None:
+                ctx.single = ctx.identifierName ().single
+            if ctx.numericLiteral () is not None:
+                ctx.single = ctx.numericLiteral ().single
 
 
     # Enter a parse tree produced by ECMAScriptParser#propertySetParameterList.
@@ -883,8 +929,9 @@ class ECMAScriptCFG(ParseTreeListener):
                             idx += 1
             else:
                 for leaf in ctx.leaves:
-                    for single in singles:
-                        ctx.single.append (leaf.getType (single.single))
+                    ctx.single.append ([])
+                    for single, idx in zip (singles, range (len (singles))):
+                        ctx.single[-1].append (leaf.getType (single.single))
 
 
     # Enter a parse tree produced by ECMAScriptParser#expressionSequence.
@@ -902,11 +949,13 @@ class ECMAScriptCFG(ParseTreeListener):
             single = ctx.singleExpression ()[0]
             ctx.single = []
 
-            for leaf in ctx.leaves:
-                if type (single.single) is not list:
-                    ty = [single.single]
+            if single.single is not list:
+                single.single = [single.single]
+            for leaf, val in zip (ctx.leaves, single.single):
+                if type (val) is not list:
+                    ty = [val]
                 else:
-                    ty = single.single
+                    ty = val
                 ctx.single.extend (ty)
 
 
@@ -1021,11 +1070,13 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#ObjectLiteralExpression.
     def enterObjectLiteralExpression(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.objectLiteral ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#ObjectLiteralExpression.
     def exitObjectLiteralExpression(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.single = ctx.objectLiteral ().single
 
 
     # Enter a parse tree produced by ECMAScriptParser#PreDecreaseExpression.
@@ -1089,20 +1140,25 @@ class ECMAScriptCFG(ParseTreeListener):
 
             if self.graph.setdefault (single.single, None) is None:
                 print (single.single + ' is not declared yet')
+                traceback.print_stack ()
+                print;
+                return
 
-            if len (args) != self.graph[single.single]['argc']:
-                print ('# of argument is not satisfied (' + single.single + ', ' + str (self.graph[single.single]['argc']) + ')')
+            if len (args[0]) != self.graph[single.single]['argc']:
+                print ('# of argument is not satisfied (' + single.single + ', ' + str (self.graph[single.single]['argc']) + ') - ' + str (len (args)))
+                traceback.print_stack ()
+                print;
 
             func_info = self.graph[single.single]
 
             idx = 0
-            for leaf in ctx.leaves:
+            for leaf, arg in zip (ctx.leaves, args):
                 try:
-                    idx = func_info['argv'].index (args)
+                    idx = func_info['argv'].index (arg)
                 except ValueError:
-                    func_info['argv'].append (args)
+                    func_info['argv'].append (arg)
                     func_info['call'].append (unknown_)
-                    idx = func_info['argv'].index (args)
+                    idx = func_info['argv'].index (arg)
                     func_info['done'] = False
                 if len (func_info['call']) <= idx:
                     func = noinfered_
@@ -1229,7 +1285,7 @@ class ECMAScriptCFG(ParseTreeListener):
             params = ctx.formalParameterList ()
 
             if not self.graph.__contains__ (self.current_f):
-                self.graph[self.current_f] = {'name':self.current_f, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False}
+                self.graph[self.current_f] = {'name':self.current_f, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False, 'return':False, 'struct':{}}
                 node_root.append (self.graph[self.current_f])
                 if params is None:
                     node = Node (root=True)
@@ -1245,6 +1301,7 @@ class ECMAScriptCFG(ParseTreeListener):
                     ret = self.graph[self.current_f]['call'][idx]
                     if ret == noinfered_ or ret == unknown_:
                         self.graph[self.current_f]['root'] = [n for n in self.graph[self.current_f]['root'] if n.getArg () != arg]
+                        self.graph[self.current_f]['struct'][str (arg)] = {}
                         node = Node (root = True, arg = arg)
                         if params is not None:
                             i = 0
@@ -1264,13 +1321,15 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Exit a parse tree produced by ECMAScriptParser#FunctionExpression.
     def exitFunctionExpression(self, ctx):
+        cur = self.current_f
+        self.current_f = ctx.parent_f
         if self.hasattr_t (ctx, 'leaves'):
-            if [] in self.graph[self.current_f]['call']:
-                self.graph[self.current_f]['done'] = False
-            elif 100 no in [ret for ret in self.graph[self.current_f]['call']]:
-                self.graph[self.current_f]['done'] = True
+            if [] in self.graph[cur]['call'] and self.graph[cur]['return'] is True:
+                self.graph[cur]['done'] = False
+            elif unknown_ not in [ret for ret in self.graph[cur]['call']]:
+                self.graph[cur]['done'] = True
             else:
-                self.graph[self.current_f]['done'] = False
+                self.graph[cur]['done'] = False
             ctx.single = function_
 
 

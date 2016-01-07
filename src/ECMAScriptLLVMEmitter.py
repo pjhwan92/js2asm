@@ -25,7 +25,8 @@ string_ = 4
 int_array = 5
 float_array = 6
 string_array = 7
-func = 8
+obj_ = 8
+function_ = 9
 unknown_ = 100
 
 module = Module.new ('top')
@@ -51,7 +52,11 @@ class LLVMEmitter(ParseTreeListener):
             leaves.extend (self.recLeaves (cld, end_leaves))
         return leaves
 
-    def llvmType (self, ty):
+    def anonymIdx (self):
+        self.anonym_idx += 1
+        return str (self.anonym_idx)
+
+    def llvmType (self, ty, elty=None):
         if ty == int_:
             return Type.int ()
         elif ty == float_:
@@ -64,6 +69,8 @@ class LLVMEmitter(ParseTreeListener):
             return Type.pointer (Type.float ())
         elif ty == string_array:
             return Type.pointer (Type.pointer (Type.int (1)))
+        elif ty == obj_:
+            return Type.struct (elty)
         else:
             print ('unknown type occurs (' + str (ty) + ')')
 
@@ -125,6 +132,8 @@ class LLVMEmitter(ParseTreeListener):
         module.target = 'asmjs-unknown-emscripten'
         #module.target = 'x86_64-unknown-linux-gnu'
         self.sym_table_f['global'] = {}
+        self.classes = {}
+        self.anonym_idx = 0
 
     # Exit a parse tree produced by ECMAScriptParser#program.
     def exitProgram(self, ctx):
@@ -593,21 +602,38 @@ class LLVMEmitter(ParseTreeListener):
         ctx.origin_f = self.current_f
         self.current_f = func_name
         params = ctx.formalParameterList ()
+        struct = {}
 
         if params is not None:
             param_id = params.Identifier ()
             ty_f = []
-            for leaf, call in zip (ctx.leaves, node_root['call']):
+            for leaf, call, struct in zip (ctx.leaves, node_root['call'], node_root['struct'].itervalues ()):
                 ty_arg = []
                 for arg in leaf.getArg ():
                     ty_arg.append (self.llvmType (arg))
                 ty = self.llvmType (call)
-                '''if ty == Type.int ():
-                    ty = Type.float ()'''
-                ty_f.append (Type.function (ty, ty_arg))
+                if ty != obj_:
+                    ty_f.append (Type.function (ty, ty_arg))
+                else:
+                    struct_ty = {}
+                    for ty in struct.itervalues ():
+                        if ty != function_ or ty.type is not str:
+                            struct_ty.append (self.llvmType (ty))
+                        else:
+                            #struct markup
+                    struct[str (leaf.getArg ())] = Type.struct (struct_ty, 'struct.' + func_name)
+                    ty_f.append (Type.function (struct[str (leaf.getArg ())], ty_arg))
         else:
             param_id = []
-            ty_f = [Type.function (self.llvmType (node_root['call'][0]), [])]
+            if node_root['call'][0] != obj_:
+                ty_f = [Type.function (self.llvmType (node_root['call'][0]), [])]
+            else:
+                struct_ty = []
+                for ty in node_root['struct']['[]'].itervalues ():
+                    if ty != function_:
+                        struct_ty.append (self.llvmType (ty))
+                struct['[]'] = Type.struct (struct_ty, 'struct.' + func_name)
+                ty_f = [Type.function (struct['[]'], [])]
 
         self.sym_table_f[ctx.origin_f][func_name] = {}
         for leaf, ty in zip (ctx.leaves, ty_f):
@@ -684,29 +710,56 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#objectLiteral.
     def enterObjectLiteral(self, ctx):
-        pass
+        ctx.propertyNameAndValueList ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#objectLiteral.
     def exitObjectLiteral(self, ctx):
-        pass
+        ctx.value = ctx.propertyNameAndValueList ().value
 
 
     # Enter a parse tree produced by ECMAScriptParser#propertyNameAndValueList.
     def enterPropertyNameAndValueList(self, ctx):
-        pass
+        props = ctx.propertyAssignment ()
+
+        for prop in props:
+            prop.leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#propertyNameAndValueList.
     def exitPropertyNameAndValueList(self, ctx):
-        pass
+        props = ctx.propertyAssignment ()
+        ctx.value = []
+
+        '''for prop in props:
+            if prop.assigner == function_:
+                for leaf in ctx.leaves:
+                    self.struct[leaf.getFunc'''
 
 
     # Enter a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
     def enterPropertyExpressionAssignment(self, ctx):
-        pass
+        '''if ctx.propertyGetter () is not None:
+            ctx.propertyGetter ().leaves = ctx.leaves
+            ctx.functionBody ().leaves = ctx.leaves
+        elif ctx.propertySetter () is not None:
+            ctx.propertySetter ().leaves = ctx.leaves
+            ctx.functionBody ().leaves = ctx.leaves
+        else:
+            ctx.propertyName ().leaves = ctx.leaves
+            ctx.singleExpression ().leaves = ctx.leaves'''
+        ctx.propertyName ().leaves = ctx.leaves
+        ctx.singleExpression ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
     def exitPropertyExpressionAssignment(self, ctx):
-        pass
+        '''if ctx.propertyGetter () is not None:
+            pass
+        elif ctx.propertySetter () is not None:
+            pass
+        else:
+            ctx.assignee = ctx.propertyName ().value
+            ctx.assigner = ctx.singleExpression ().value;'''
+        ctx.assignee = ctx.propertyName ().value
+        ctx.assigner = ctx.singleExpression ().value
 
 
     # Enter a parse tree produced by ECMAScriptParser#PropertyGetter.
@@ -729,11 +782,21 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#propertyName.
     def enterPropertyName(self, ctx):
-        pass
+        if ctx.identifierName () is not None:
+            ctx.identifierName ().leaves = ctx.leaves
+        elif ctx.StringLiteral () is not None:
+            ctx.StringLiteral ().leaves = ctx.leaves
+        else:
+            ctx.NumericLiteral ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#propertyName.
     def exitPropertyName(self, ctx):
-        pass
+        if ctx.identifierName () is not None:
+            ctx.value = ctx.identifierName ().value
+        elif ctx.StringLiteral () is not None:
+            ctx.value = ctx.StringLiteral ().value
+        else:
+            ctx.value = ctx.NumericLiteral ().value
 
 
     # Enter a parse tree produced by ECMAScriptParser#propertySetParameterList.
@@ -897,11 +960,11 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#ObjectLiteralExpression.
     def enterObjectLiteralExpression(self, ctx):
-        pass
+        ctx.objectLiteral ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#ObjectLiteralExpression.
     def exitObjectLiteralExpression(self, ctx):
-        pass
+        ctx.value = ctx.objectLiteral ().value
 
 
     # Enter a parse tree produced by ECMAScriptParser#PreDecreaseExpression.
@@ -1026,11 +1089,63 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#FunctionExpression.
     def enterFunctionExpression(self, ctx):
-        pass
+        if ctx.Identifier () is not None:
+            func_name = str (ctx.Identifier ())
+        else:
+            func_name = 'anonym_' + self.anonymIdx ()
+        node_root = self.node_root[func_name]
+        ctx.origin_leaves = ctx.leaves
+        ctx.leaves = node_root['root']
+        ctx.origin_f = self.current_f
+        self.current_f = func_name
+        params = ctx.formalParameterList ()
+
+        if params is not None:
+            param_id = params.Identifier ()
+            ty_f == []
+            for leaf, call in zip (ctx.leaves, node_root['call']):
+                ty_arg = []
+                for arg in leaf.getArg ():
+                    ty_arg.append (self.llvmType (arg))
+                ty = self.llvmType (call)
+                ty_f.append (Type.function (ty, ty_arg))
+        else:
+            param_id = []
+            ty_f = [Type.function (self.llvmType (node_root['call'][0]), [])]
+
+        for leaf in ctx.origin_leaves:
+            self.sym_table_f[leaf.getFunc ()][func_name] = {}
+        for leaf, ty in zip (ctx.leaves, ty_f):
+            self.func_idx += 1
+            if func_name == 'main':
+                f = module.add_function (ty, func_name)
+            else:
+                f = module.add_function (ty, '__' + str (self.func_idx))
+            for org_leaf in ctx.origin_leaves:
+                self.sym_table_f[org_leaf.getFunc ()][func_name][str (leaf.getArg ())] = f
+            self.sym_table_f[f] = {}
+            leaf.setFunc (f, func_name)
+
+            bb = f.append_basic_block ('function_init')
+            leaf.setBB (bb)
+
+            builder = Builder.new (bb)
+            for arg, ty_, farg in zip (param_id, leaf.getArg (), f.args):
+                farg.name = str (arg)
+                alloc = builder.alloca (self.llvmType (ty_))
+                builder.store (farg, alloc)
+                self.sym_table_f[f][farg.name] = alloc
+
+        ctx.functionBody ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#FunctionExpression.
     def exitFunctionExpression(self, ctx):
-        pass
+        self.current_f = ctx.origin_f
+        ctx.value = []
+
+        for leaf in ctx.leaves:
+            ctx.value.append (leaf.getFunc ())
+        ctx.leaves = ctx.origin_leaves
 
 
     # Enter a parse tree produced by ECMAScriptParser#BitShiftExpression.
@@ -1522,7 +1637,7 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#identifierName.
     def enterIdentifierName(self, ctx):
-        pass
+        ctx.value = str (ctx.getText ())
 
     # Exit a parse tree produced by ECMAScriptParser#identifierName.
     def exitIdentifierName(self, ctx):

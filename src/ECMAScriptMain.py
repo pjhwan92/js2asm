@@ -30,6 +30,7 @@ def main (args):
             break'''
     while False in [cfg.getGraph ()[func]['done'] for func in [x for x in cfg.getGraph ()]]:
         walker.walk (cfg, tree)
+        #print cfg.getGraph ()
     print (cfg.getGraph ())
 
     emitter = LLVMEmitter (cfg.getGraph (), args.output_file)
