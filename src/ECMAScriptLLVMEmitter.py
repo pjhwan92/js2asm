@@ -99,6 +99,11 @@ class LLVMEmitter(ParseTreeListener):
         builder.ret (Constant.real (Type.float (), 0.0))
 
     def getVal (self, cand, leaf):
+        if type (cand) != str:
+            if cand.name == 'a1':
+                print 'wow1'
+            elif cand.name == 'a':
+                print 'wow2'
         cached = leaf.getInst (cand)
         if cached is not None:
             return cached
@@ -122,9 +127,32 @@ class LLVMEmitter(ParseTreeListener):
                 flag = True
         if type (cand) is AllocaInstruction or flag is True:
             store = builder.store (self.getVal (val, leaf), cand)
+            leaf.cacheInst (cand, val)
         else:
             store = self.getVal (val, leaf)
         return store
+
+    def funcType (self, node_root):
+        ty_f = []
+
+        for leaf, call, struct in zip (node_root['root'], node_root['call'], node_root['struct'].itervalues ()):
+            ty_arg = []
+            for arg in leaf.getArg ():
+                ty_arg.append (self.llvmType (arg))
+            ty = self.llvmType (call)
+            if call != obj_:
+                ty_f.append (Type.function (ty, ty_arg))
+            else:
+                struct_ty = {}
+                for ty in struct.itervalues ():
+                    if ty != function_ or ty.type is not str:
+                        struct_ty.append (self.llvmType (ty))
+                    else:
+                        pass
+                        #struct_markup
+                struct[str (leaf.getArg ())] = Type.struct (struct_ty, 'struct.' + func_name)
+                ty_f.append (Type.function (struct[str (leaf.getArg ())], ty_arg))
+        return ty_f
 
     # Enter a parse tree produced by ECMAScriptParser#program.
     def enterProgram(self, ctx):
@@ -360,7 +388,7 @@ class LLVMEmitter(ParseTreeListener):
                     for cld in clds:
                         cld.setFunc (f, f_name)
                         cld.setBB (f.append_basic_block ('elem'))
-                        builder.cbranch (comp, end_leaf.getBB (), cld.getBB ())
+                        builder.cbranch (comp, start_leaf.getBB (), cld.getBB ())
                     leaves.extend (clds)
                 else:
                     self.setEndBlock (comp, end_leaf)
@@ -606,7 +634,8 @@ class LLVMEmitter(ParseTreeListener):
 
         if params is not None:
             param_id = params.Identifier ()
-            ty_f = []
+            ty_f = self.funcType (node_root)
+            '''ty_f = []
             for leaf, call, struct in zip (ctx.leaves, node_root['call'], node_root['struct'].itervalues ()):
                 ty_arg = []
                 for arg in leaf.getArg ():
@@ -620,9 +649,10 @@ class LLVMEmitter(ParseTreeListener):
                         if ty != function_ or ty.type is not str:
                             struct_ty.append (self.llvmType (ty))
                         else:
+                            pass
                             #struct markup
                     struct[str (leaf.getArg ())] = Type.struct (struct_ty, 'struct.' + func_name)
-                    ty_f.append (Type.function (struct[str (leaf.getArg ())], ty_arg))
+                    ty_f.append (Type.function (struct[str (leaf.getArg ())], ty_arg))'''
         else:
             param_id = []
             if node_root['call'][0] != obj_:
@@ -636,12 +666,12 @@ class LLVMEmitter(ParseTreeListener):
                 ty_f = [Type.function (struct['[]'], [])]
 
         self.sym_table_f[ctx.origin_f][func_name] = {}
-        for leaf, ty in zip (ctx.leaves, ty_f):
+        for leaf, ty, idx in zip (ctx.leaves, ty_f, node_root['idx']):
             self.func_idx += 1
             if func_name == 'main':
                 f = module.add_function (ty, func_name)
             else:
-                f = module.add_function (ty, '__' + str (self.func_idx))
+                f = Function.get_or_insert (module, ty, '__' + str (idx))
             self.sym_table_f[ctx.origin_f][func_name][str (leaf.getArg ())] = f
             self.sym_table_f[f] = {}
             leaf.setFunc (f, func_name)
@@ -918,6 +948,9 @@ class LLVMEmitter(ParseTreeListener):
         seq = ctx.expressionSequence ()
         assigners = seq.value
         ctx.value = []
+        print assignees
+        print assigners
+        print;
 
         for l in range (len (assigners) - len (assignees)):
             assignees.append (assignees[0])
@@ -1012,7 +1045,11 @@ class LLVMEmitter(ParseTreeListener):
             elif self.sym_table_f['global'].has_key (single.value[0]):
                 func = self.sym_table_f['global'][single.value[0]][str (ty)]
             else:
-                func = self.sym_table_f['global'][single.value[0]][str (ty)] = module.add_function (declare_ty[single.value[0]])
+                node_root = self.node_root[single.value[0]]
+                f_tys = self.funcType (node_root)
+                node_root['idx'] = []
+                for ty in f_tys:
+                    func = Function.get_or_insert (module, ty, '__' + str (self.func_idx))
 
             ctx.value.append (builder.call (func, value))
 
@@ -1102,25 +1139,34 @@ class LLVMEmitter(ParseTreeListener):
 
         if params is not None:
             param_id = params.Identifier ()
-            ty_f == []
+            ty_f = self.funcType (node_root)
+            '''ty_f == []
             for leaf, call in zip (ctx.leaves, node_root['call']):
                 ty_arg = []
                 for arg in leaf.getArg ():
                     ty_arg.append (self.llvmType (arg))
                 ty = self.llvmType (call)
-                ty_f.append (Type.function (ty, ty_arg))
+                ty_f.append (Type.function (ty, ty_arg))'''
         else:
             param_id = []
-            ty_f = [Type.function (self.llvmType (node_root['call'][0]), [])]
+            if node_root['call'][0] != obj_:
+                ty_f = [Type.function (self.llvmType (node_root['call'][0]), [])]
+            else:
+                struct_ty = []
+                for ty in node_root['struct']['[]'].itervalues ():
+                    if ty != function_:
+                        struct_ty.append (self.llvmType (ty))
+                struct['[]'] = Type.struct (struct_ty, 'struct.' + func_name)
+                ty_f = [Type.function (struct['[]'], [])]
 
         for leaf in ctx.origin_leaves:
             self.sym_table_f[leaf.getFunc ()][func_name] = {}
-        for leaf, ty in zip (ctx.leaves, ty_f):
+        for leaf, ty, idx in zip (ctx.leaves, ty_f, node_root['idx']):
             self.func_idx += 1
             if func_name == 'main':
                 f = module.add_function (ty, func_name)
             else:
-                f = module.add_function (ty, '__' + str (self.func_idx))
+                f = module.add_function (ty, '__' + str (idx))
             for org_leaf in ctx.origin_leaves:
                 self.sym_table_f[org_leaf.getFunc ()][func_name][str (leaf.getArg ())] = f
             self.sym_table_f[f] = {}

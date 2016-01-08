@@ -1,9 +1,3 @@
-function b (a) {
-	if (a > 1.0)
-		return a + 1.0
-	return a
-}
-
 function main () {
 	i = 0;
 	x = 1
@@ -14,6 +8,12 @@ function main () {
 		i ++;
 	} while (i < 100000000);
 	return b(1.0) + b(x)
+}
+
+function b (a) {
+	if (a > 1.0)
+		return a + 1.0
+	return a
 }
 
 //exports.main = main

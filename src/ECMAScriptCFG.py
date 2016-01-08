@@ -71,7 +71,7 @@ class Node:
 
     def appendChild (self, cld):
         cld.root = self.root
-        cld.var = self.var.copy ()
+        cld.var = dict (self.var)
         cld.arg = self.arg
 
         l = len (self.cld)
@@ -688,6 +688,15 @@ class ECMAScriptCFG(ParseTreeListener):
             nodes = []
             for arg in self.graph[self.current_f]['argv']:
                 idx = self.graph[self.current_f]['argv'].index (arg)
+                if not hasattr (self.graph[self.current_f], 'idx'):
+                    self.idx += 1
+                    self.graph[self.current_f]['idx'] = [self.idx]
+                else:
+                    try:
+                        idx = self.graph[self.current_f]['idx'][idx]
+                    except KeyError:
+                        self.idx += 1
+                        self.graph[self.current_f]['idx'].append (self.idx)
                 ret = self.graph[self.current_f]['call'][idx]
                 if ret == noinfered_ or ret == unknown_:
                     self.graph[self.current_f]['root'] = [n for n in self.graph[self.current_f]['root'] if n.getArg () != arg]
@@ -1139,10 +1148,11 @@ class ECMAScriptCFG(ParseTreeListener):
             args = ctx.arguments ().single
 
             if self.graph.setdefault (single.single, None) is None:
-                print (single.single + ' is not declared yet')
+                self.graph[single.single] = {'name':single.single, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False, 'return':False, 'struct':{}}
+                '''print (single.single + ' is not declared yet')
                 traceback.print_stack ()
                 print;
-                return
+                return'''
 
             if len (args[0]) != self.graph[single.single]['argc']:
                 print ('# of argument is not satisfied (' + single.single + ', ' + str (self.graph[single.single]['argc']) + ') - ' + str (len (args)))
@@ -1298,6 +1308,15 @@ class ECMAScriptCFG(ParseTreeListener):
                 nodes = []
                 for arg in self.graph[self.current_f]['argv']:
                     idx = self.graph[self.current_f]['argv'].index (arg)
+                    if hasattr (self.graph[self.current_f], idx):
+                        self.idx += 1
+                        self.graph[self.current_f]['idx'] = [self.idx]
+                    else:
+                        try:
+                            idx = self.graph[self.current_f]['idx']
+                        except ValueError:
+                            self.idx += 1
+                            self.graph[self.current_f]['idx'].append (self.idx)
                     ret = self.graph[self.current_f]['call'][idx]
                     if ret == noinfered_ or ret == unknown_:
                         self.graph[self.current_f]['root'] = [n for n in self.graph[self.current_f]['root'] if n.getArg () != arg]
