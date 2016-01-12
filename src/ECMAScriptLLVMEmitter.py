@@ -99,11 +99,6 @@ class LLVMEmitter(ParseTreeListener):
         builder.ret (Constant.real (Type.float (), 0.0))
 
     def getVal (self, cand, leaf):
-        if type (cand) != str:
-            if cand.name == 'a1':
-                print 'wow1'
-            elif cand.name == 'a':
-                print 'wow2'
         cached = leaf.getInst (cand)
         if cached is not None:
             return cached

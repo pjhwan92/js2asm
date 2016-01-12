@@ -35,6 +35,7 @@ class Node:
         self.nxt = None
         self.if_node = if_node
         self.bb = None
+        self.sym_table = {}
         if root is True:
             self.root = self
             self.inferable = True
