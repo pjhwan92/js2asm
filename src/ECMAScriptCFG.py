@@ -51,6 +51,24 @@ class Node:
     def isIf (self):
         return self.if_node
 
+    def inheritSymTable (self, parent):
+        self.sym_table = dict (parent)
+
+    def setSym (self, var_name, val, idx = None):
+        if idx is not None:
+            self.sym_table[var_name][idx] = val
+        else:
+            self.sym_table[var_name] = val
+
+    def getSym (self, var_name, idx = None):
+        if idx is not None:
+            return self.sym_table[var_name].setdefault (idx, var_name)
+        else:
+            return self.sym_table.setdefault (var_name, var_name)
+
+    def hasSym (self, var_name):
+        return self.sym_table.has_key (var_name)
+
     def setFunc (self, func, func_name):
         self.func = func
         self.func_name = func_name
@@ -74,6 +92,7 @@ class Node:
         cld.root = self.root
         cld.var = dict (self.var)
         cld.arg = self.arg
+        cld.inheritSymTable (self.sym_table)
 
         l = len (self.cld)
         if l != 0:
@@ -117,6 +136,7 @@ class Node:
 
         if var in self.var:
             if self.var != ty:
+                #print node_root
                 self.var[var].append (ty)
         else:
             self.var[var] = [ty]
@@ -764,7 +784,8 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Exit a parse tree produced by ECMAScriptParser#arrayLiteral.
     def exitArrayLiteral(self, ctx):
-        ctx.single = ctx.elementList ().single
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.single = ctx.elementList ().single
 
 
     # Enter a parse tree produced by ECMAScriptParser#elementList.
@@ -928,15 +949,17 @@ class ECMAScriptCFG(ParseTreeListener):
             singles = ctx.singleExpression ()
 
             ctx.single = []
+            for single in singles:
+                print single.single
+            print len (ctx.leaves)
             if type (singles[0].single) is list:
-                for leaf in ctx.leaves:
-                    for l in range (len (ctx.leaves)):
-                        ctx.single.append ([])
-                    for single in singles:
-                        idx = 0
-                        for s in single.single:
-                            ctx.single[idx].append (leaf.getType (s))
-                            idx += 1
+                for l in range (len (ctx.leaves)):
+                    ctx.single.append ([])
+                for single, leaf in zip (singles, ctx.leaves):
+                    idx = 0
+                    for s in single.single:
+                        ctx.single[idx].append (leaf.getType (s))
+                        idx += 1
             else:
                 for leaf in ctx.leaves:
                     ctx.single.append ([])
@@ -1653,7 +1676,7 @@ class ECMAScriptCFG(ParseTreeListener):
     def exitMemberIndexExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
             for leaf in ctx.leaves:
-                ctx.single = leaf.getType (ctx.singleExpression ().single) - 3
+                ctx.single = ctx.singleExpression ().single
 
 
     # Enter a parse tree produced by ECMAScriptParser#ThisExpression.

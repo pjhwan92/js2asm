@@ -154,7 +154,7 @@ class LLVMEmitter(ParseTreeListener):
         module.data_layout = 'e-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-p:32:32:32-v128:32:128-n32-S128'
         module.target = 'asmjs-unknown-emscripten'
         #module.target = 'x86_64-unknown-linux-gnu'
-        self.sym_table_f['global'] = {}
+        #self.sym_table_f['global'] = {}
         self.classes = {}
         self.anonym_idx = 0
 
@@ -256,20 +256,23 @@ class LLVMEmitter(ParseTreeListener):
 
         for leaf, assigner in zip (ctx.leaves, assigners):
             builder = Builder.new (leaf.getBB ())
-            sym = self.sym_table_f[leaf.getFunc ()]
-            assignee = sym[var]
+            assignee = leaf.getSym (var)
+            #sym = self.sym_table_f[leaf.getFunc ()]
+            #assignee = sym.setdefault (var,var)
             assignee_val = self.getVal (assignee, leaf)
-            assginer_val = self.getVal (assigner, leaf)
+            assigner_val = self.getVal (assigner, leaf)
 
             if type (assignee) is str:
                 alloc = builder.alloca (assigner_val.type, name=var)
-                sym[assignee] = alloc
+                #sym[assignee] = alloc
+                leaf.setSym (assignee, alloc)
             else:
                 if assigner_val.type == assignee_val.type:
                     alloc = assignee
                 else:
                     alloc = builder.alloca (assigner.type, name=var)
-                    sym[name] = alloc
+                    #sym[name] = alloc
+                    leaf.setSym (name, alloc)
             ctx.value.append (self.setVal (assigner_val, alloc, leaf))
 
 
@@ -305,6 +308,7 @@ class LLVMEmitter(ParseTreeListener):
         ctx.expressionSequence ().leaves = ctx.leaves
         if_nodes = []
         else_nodes = []
+        print ctx.leaves
         for leaf in ctx.leaves:
             f = leaf.getFunc ()
             clds = leaf.getChild ()
@@ -401,19 +405,25 @@ class LLVMEmitter(ParseTreeListener):
 
         for leaf in ctx.leaves:
             builder = Builder.new (leaf.getBB ())
-            bb = leaf.getFunc ().append_basic_block ()
+            func = leaf.getFunc ()
+            func_name = leaf.getFuncName ()
+            bb = func.append_basic_block ('iter_cond')
             builder.branch (bb)
             for cld in leaf.getChild ():
+                cld.setFunc (func, func_name)
                 cld.setBB (bb)
                 seq_leaves.append (cld)
                 gclds = cld.getChild ()
-                gclds[0].setBB (cld.getFunc ().append_basic_block ())
+                gclds[0].setFunc (func, func_name)
+                gclds[0].setBB (cld.getFunc ().append_basic_block ('iter_body'))
                 stmt_leaves.append (gclds[0])
-                gclds[1].setBB (cld.getFunc ().append_basic_block ())
+                gclds[1].setFunc (func, func_name)
+                gclds[1].setBB (cld.getFunc ().append_basic_block ('elem'))
                 ctx.nexts.append (gclds[1])
 
         seq.leaves = seq_leaves
         stmt.leaves = stmt_leaves
+        ctx.start_leaves = list (stmt_leaves)
 
     # Exit a parse tree produced by ECMAScriptParser#WhileStatement.
     def exitWhileStatement(self, ctx):
@@ -421,19 +431,83 @@ class LLVMEmitter(ParseTreeListener):
         seq = ctx.expressionSequence ()
 
         nodes = []
-        for leaf in seq.leaves:
-            builder = Builder.new (seq.getBB ())
-            end_leaves = self.recLeaves (leaf, stmt.leaves)
+        for leaf, value, start_leaf in zip (seq.leaves, seq.value, ctx.start_leaves):
+            cond_builder = Builder.new (leaf.getBB ())
+            body_bb = None
+            next_bb = None
+            for cld in leaf.getChild ():
+                if cld.isIf ():
+                    body_bb = cld.getBB ()
+                else:
+                    next_bb = cld.getBB ()
+            cond_builder.cbranch (value, body_bb, next_bb)
+            #for start_leaf in ctx.start_leaves:
+            end_leaves = self.recLeaves (start_leaf, stmt.leaves)
             for end_leaf in end_leaves:
-                end_leaf.getBB ()
+                builder = Builder.new (end_leaf.getBB ())
+                builder.branch (leaf.getBB ())
+        del ctx.leaves[:]
+        ctx.leaves.extend (ctx.nexts)
 
 
     # Enter a parse tree produced by ECMAScriptParser#ForStatement.
     def enterForStatement(self, ctx):
-        pass
+        seqs = ctx.expressionSequence ()
+        stmt = ctx.statement ()
+        ctx.nexts = []
+        ctx.cond_leaves = cond_leaves = []
+
+        if seqs[0] is not None:
+            seqs[0].leaves = ctx.leaves
+            init_leaves = ctx.leaves
+
+        if seqs[1] is not None:
+            for leaf in ctx.leaves:
+                builder = Builder.new (leaf.getBB ())
+                clds = leaf.getChild ()
+                func = leaf.getFunc ()
+                func_name = leaf.getFuncName ()
+                for cld in clds:
+                    cld.setFunc (func, func_name)
+                    cld.setBB (func.append_basic_block ('iter_cond'))
+                    builder.branch (cld.getBB ())
+                    cond_leaves.append (cld)
+            seqs[1].leaves = cond_leaves
+        else:
+            cond_leaves = ctx.leaves
+
+        if seqs[2] is not None:
+            incr_leaves = []
+            for leaf in ctx.leaves:
+                clds = leaf.getChild ()
+                func = leaf.getFunc ()
+                func_name = leaf.getFuncName ()
+                for cld in clds:
+                    cld.setFunc (func, func_name)
+                    cld.setBB (func.append_basic_block ('iter_incr'))
+                    incr_leaves.append (cld)
+            seqs[2].leaves = incr_leaves
+
+        body_leaves = []
+        for leaf in cond_leaves:
+            clds = leaf.getChild ()
+            func = leaf.getFunc ()
+            func_name = leaf.getFuncName ()
+            for cld in clds:
+                cld.setFunc (func, func_name)
+                cld.setBB (func.append_basic_block ('iter_body'))
+                body_leaves.append (cld)
+        stmt.leaves = body_leaves
 
     # Exit a parse tree produced by ECMAScriptParser#ForStatement.
     def exitForStatement(self, ctx):
+        '''seqs = ctx.expressionSequence ()
+        stmt = ctx.statement ()
+        for leaf in stmt.leaves:
+            builder = Builder.new (leaf.getBB ())
+            end_leaves = self.recLeaves (leaf, stmt.leaves)
+            for end_leaf in end_leaves:
+                end_leaf.'''
         pass
 
 
@@ -660,26 +734,50 @@ class LLVMEmitter(ParseTreeListener):
                 struct['[]'] = Type.struct (struct_ty, 'struct.' + func_name)
                 ty_f = [Type.function (struct['[]'], [])]
 
-        self.sym_table_f[ctx.origin_f][func_name] = {}
-        for leaf, ty, idx in zip (ctx.leaves, ty_f, node_root['idx']):
-            self.func_idx += 1
-            if func_name == 'main':
-                f = module.add_function (ty, func_name)
-            else:
-                f = Function.get_or_insert (module, ty, '__' + str (idx))
-            self.sym_table_f[ctx.origin_f][func_name][str (leaf.getArg ())] = f
-            self.sym_table_f[f] = {}
-            leaf.setFunc (f, func_name)
+        #if self.sym_table_f[ctx.origin_f].has_key (func_name):
+        #if self.sym_table_f['global'].has_key (func_name):
+        if self.sym_table_f.has_key (func_name):
+            #sym_t = self.sym_table_f[ctx.origin_f][func_name]
+            #for leaf, ty in zip (ctx.leaves, sym_t):
+            for leaf in ctx.leaves:
+                f = sym_t[str (ty)]
+                #self.sym_table_f[f] = {}
+                leaf.setFunc (f, func_name)
 
-            bb = f.append_basic_block ('function_init')
-            leaf.setBB (bb)
+                bb = f.append_basic_block ('function_init')
+                leaf.setBB (bb)
 
-            builder = Builder.new (bb)
-            for arg, ty_, farg in zip (param_id, leaf.getArg (), f.args):
-                farg.name = str (arg)
-                alloc = builder.alloca (self.llvmType (ty_))
-                builder.store (farg, alloc)
-                self.sym_table_f[f][farg.name] = alloc
+                builder = Builder.new (bb)
+                for arg, ty_, farg in zip (param_id, leaf.getArg (), f.args):
+                    farg.name = str (arg)
+                    alloc = builder.alloca (self.llvmType (ty_))
+                    builder.store (farg, alloc)
+                    #self.sym_table_f[f][farg.name] = alloc
+                    leaf.setSym (farg.name, alloc)
+        else:
+            #self.sym_table_f['global'][func_name] = {}
+            self.sym_table_f[func_name] = {}
+            for leaf, ty, idx in zip (ctx.leaves, ty_f, node_root['idx']):
+                self.func_idx += 1
+                if func_name == 'main':
+                    f = module.add_function (ty, func_name)
+                else:
+                    f = Function.get_or_insert (module, ty, '__' + str (idx))
+                #self.sym_table_f['global'][func_name][str (leaf.getArg ())] = f
+                self.sym_table_f[func_name][str (leaf.getArg ())] = f
+                #self.sym_table_f[f] = {}
+                leaf.setFunc (f, func_name)
+
+                bb = f.append_basic_block ('function_init')
+                leaf.setBB (bb)
+
+                builder = Builder.new (bb)
+                for arg, ty_, farg in zip (param_id, leaf.getArg (), f.args):
+                    farg.name = str (arg)
+                    alloc = builder.alloca (self.llvmType (ty_))
+                    builder.store (farg, alloc)
+                    #self.sym_table_f[f][farg.name] = alloc
+                    leaf.setSym (farg.name, alloc)
 
         ctx.functionBody ().leaves = ctx.leaves
 
@@ -708,20 +806,60 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#arrayLiteral.
     def enterArrayLiteral(self, ctx):
-        pass
+        ctx.elementList ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#arrayLiteral.
     def exitArrayLiteral(self, ctx):
-        pass
+        #ctx.value = ctx.elementList ().value
+        arrays = ctx.elementList ().value
+        ctx.value = []
+
+        for leaf, array in zip (ctx.leaves, arrays):
+            builder = Builder.new (leaf.getBB ())
+            count = len (array)
+
+            '''arr_ty = []
+            for value in array:
+                arr_ty.append (value)'''
+            ty = -1
+            for value in array:
+                tmp = self.asmType (type (value.type))
+                if ty < tmp:
+                    ty = value.type
+            #arr_ty = Type.array (ty, count)
+            #arr = builder.alloca_array (ty, Constant.int (Type.int (32), count))
+            #arr = builder.alloca (arr_ty, Constant.int (Type.int (), 0), align = 4 * count)
+            arr = builder.alloca (ty, Constant.int (Type.int (), count))
+            #arr = builder.malloc (arr_ty)
+            #arr = builder.load (arr_ptr)
+            idx = 0
+            for value in array:
+                #gep = builder.gep (arr, [Constant.int (Type.int (32), 0), Constant.int (Type.int (32), idx)], inbounds = True, name = 'arrayinit.elem')
+                gep = builder.gep (arr, [Constant.int (Type.int (32), idx)], inbounds = True, name = 'arrayinit.elem')
+                builder.store (self.getVal (value, leaf), gep)
+                idx += 1
+            ctx.value.append (arr)
 
 
     # Enter a parse tree produced by ECMAScriptParser#elementList.
     def enterElementList(self, ctx):
-        pass
+        singles = ctx.singleExpression ()
+
+        for single in singles:
+            single.leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#elementList.
     def exitElementList(self, ctx):
-        pass
+        singles = ctx.singleExpression ()
+
+        ctx.value = []
+        for leaf in ctx.leaves:
+            ctx.value.append ([])
+        for single in singles:
+            idx = 0
+            for val in single.value:
+                ctx.value[idx].append (val)
+                idx += 1
 
 
     # Enter a parse tree produced by ECMAScriptParser#elision.
@@ -943,29 +1081,36 @@ class LLVMEmitter(ParseTreeListener):
         seq = ctx.expressionSequence ()
         assigners = seq.value
         ctx.value = []
-        print assignees
-        print assigners
-        print;
 
         for l in range (len (assigners) - len (assignees)):
             assignees.append (assignees[0])
 
+        print;
+        print ctx.getText ()
+        print ctx.leaves
         for leaf, assignee, assigner in zip (ctx.leaves, assignees, assigners):
             builder = Builder.new (leaf.getBB ())
             assignee_val = self.getVal (assignee, leaf)
             assigner_val = self.getVal (assigner, leaf)
-            sym = self.sym_table_f[leaf.getFunc ()]
+            print assignee
+            #sym = self.sym_table_f[leaf.getFunc ()]
             if type (assignee) is str:
                 alloc = builder.alloca (assigner_val.type, name = assignee)
-                sym[assignee] = alloc
+                #sym[assignee] = alloc
+                leaf.setSym (assignee, alloc)
             else:
                 if assigner_val.type == assignee_val.type:
                     alloc = assignee
                 else:
                     name = str (single.getText ())
                     alloc = builder.alloca (assigner.type, name = name)
-                    sym[name] = alloc
+                    #sym[name] = alloc
+                    leaf.setSym (name, alloc)
             ctx.value.append (self.setVal (assigner_val, alloc, leaf))
+
+        print ctx.value
+        for val in ctx.value:
+            print val
 
 
     # Enter a parse tree produced by ECMAScriptParser#LogicalAndExpression.
@@ -1006,11 +1151,11 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
     def enterArrayLiteralExpression(self, ctx):
-        pass
+        ctx.arrayLiteral ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
     def exitArrayLiteralExpression(self, ctx):
-        pass
+        ctx.value = ctx.arrayLiteral ().value
 
 
     # Enter a parse tree produced by ECMAScriptParser#InExpression.
@@ -1035,16 +1180,27 @@ class LLVMEmitter(ParseTreeListener):
 
         for leaf, value, ty in zip (ctx.leaves, ctx.arguments ().value, ctx.arguments ().type_):
             builder = Builder.new (leaf.getBB ())
-            if self.sym_table_f[leaf.getFunc ()].has_key (single.value[0]):
-                func = self.sym_table_f[leaf.getFunc ()][single.value[0]][str (ty)]
-            elif self.sym_table_f['global'].has_key (single.value[0]):
-                func = self.sym_table_f['global'][single.value[0]][str (ty)]
+            #if self.sym_table_f[leaf.getFunc ()].has_key (single.value[0]):
+            if leaf.hasSym (single.value[0]):
+                #func = self.sym_table_f[leaf.getFunc ()][single.value[0]][str (ty)]
+                func = leaf.getSym (single.value[0])[str (ty)]
+            #elif self.sym_table_f['global'].has_key (single.value[0]):
+                #func = self.sym_table_f['global'][single.value[0]][str (ty)]
+            elif self.sym_table_f.has_key (single.value[0]):
+                func = self.sym_table_f[single.value[0]][str (ty)]
             else:
                 node_root = self.node_root[single.value[0]]
                 f_tys = self.funcType (node_root)
                 node_root['idx'] = []
-                for ty in f_tys:
-                    func = Function.get_or_insert (module, ty, '__' + str (self.func_idx))
+                #self.sym_table_f['global'][single.value[0]] = {}
+                self.sym_table_f[single.value[0]] = {}
+                for f_ty, l_ty in zip (f_tys, node_root['argv']):
+                    func = Function.get_or_insert (module, f_ty, '__' + str (self.func_idx))
+                    self.func_idx += 1
+                    #self.sym_table_f['global'][single.value[0]][str (l_ty)] = func
+                    self.sym_table_f[single.value[0]][str (l_ty)] = func
+                #func = self.sym_table_f['global'][single.value[0]][str (ty)]
+                func = self.sym_table_f[single.value[0]][str (ty)]
 
             ctx.value.append (builder.call (func, value))
 
@@ -1086,10 +1242,13 @@ class LLVMEmitter(ParseTreeListener):
         ctx.value = []
 
         for leaf in ctx.leaves:
-            if self.sym_table_f[leaf.getFunc ()].has_key (var_name):
-                ctx.value.append (self.sym_table_f[leaf.getFunc ()][var_name])
-            else:
-                ctx.value.append (var_name)
+            #if self.sym_table_f[leaf.getFunc ()].has_key (var_name):
+            #if leaf.hasSym (var_name):
+                #ctx.value.append (self.sym_table_f[leaf.getFunc ()][var_name])
+                #ctx.value.append (leaf.getSym (var_name))
+            #else:
+                #ctx.value.append (var_name)
+            ctx.value.append (leaf.getSym (var_name))
 
 
     # Enter a parse tree produced by ECMAScriptParser#BitAndExpression.
@@ -1155,7 +1314,8 @@ class LLVMEmitter(ParseTreeListener):
                 ty_f = [Type.function (struct['[]'], [])]
 
         for leaf in ctx.origin_leaves:
-            self.sym_table_f[leaf.getFunc ()][func_name] = {}
+            #self.sym_table_f[leaf.getFunc ()][func_name] = {}
+            leaf.setSym (func_name, {})
         for leaf, ty, idx in zip (ctx.leaves, ty_f, node_root['idx']):
             self.func_idx += 1
             if func_name == 'main':
@@ -1163,8 +1323,9 @@ class LLVMEmitter(ParseTreeListener):
             else:
                 f = module.add_function (ty, '__' + str (idx))
             for org_leaf in ctx.origin_leaves:
-                self.sym_table_f[org_leaf.getFunc ()][func_name][str (leaf.getArg ())] = f
-            self.sym_table_f[f] = {}
+                #self.sym_table_f[org_leaf.getFunc ()][func_name][str (leaf.getArg ())] = f
+                org_leaf.setSym (func_name, f, str (leaf.getArg ()))
+            #self.sym_table_f[f] = {}
             leaf.setFunc (f, func_name)
 
             bb = f.append_basic_block ('function_init')
@@ -1175,7 +1336,8 @@ class LLVMEmitter(ParseTreeListener):
                 farg.name = str (arg)
                 alloc = builder.alloca (self.llvmType (ty_))
                 builder.store (farg, alloc)
-                self.sym_table_f[f][farg.name] = alloc
+                #self.sym_table_f[f][farg.name] = alloc
+                leaf.setSym (farg.name, alloc)
 
         ctx.functionBody ().leaves = ctx.leaves
 
@@ -1218,11 +1380,11 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#ParenthesizedExpression.
     def enterParenthesizedExpression(self, ctx):
-        pass
+        ctx.expressionSequence ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#ParenthesizedExpression.
     def exitParenthesizedExpression(self, ctx):
-        pass
+        ctx.value = ctx.expressionSequence ().value
 
 
     # Enter a parse tree produced by ECMAScriptParser#UnaryPlusExpression.
@@ -1297,13 +1459,13 @@ class LLVMEmitter(ParseTreeListener):
             builder = Builder.new (leaf.getBB ())
             assignee_val = self.getVal (assignee, leaf)
             assigner_val = self.getVal (assigner, leaf)
-            sym = self.sym_table_f[leaf.getFunc ()]
+            #sym = self.sym_table_f[leaf.getFunc ()]
 
             if assigner_val.type != assignee_val.type:
                 if self.asmType (type (assignee_val.type)) > self.asmType (type (assigner_val.type)):
-                    assigner_val = builder.bitcast (assignee_val.type, assigner_val)
+                    assigner_val = builder.sitofp (assigner_val, assignee_val.type)
                 else:
-                    assignee_val = builder.bitcast (assigner_val.type, assignee_val)
+                    assignee_val = builder.sitofp (assignee_val, assigner_val.type)
 
             if '+' in operator:
                 if assignee_val.type == Type.int ():
@@ -1545,12 +1707,16 @@ class LLVMEmitter(ParseTreeListener):
                 sub = builder.fsub
                 if type (lhs_val.type) is IntegerType:
                     if type (lhs_val) is ConstantInt:
-                        lhs_val = Constant.real (Type.float (), lhs)
+                        #lhs_val = Constant.real (Type.float (), singles[0].getText ())
+                        lhs_val = builder.sitofp (lhs_val, Type.float ())
+                        #lhs_val = Constant.real (Type.float (), lhs_val)
                     else:
                         lhs_val = builder.bitcast (lhs_val, Type.float ())
                 if type (rhs_val.type) is IntegerType:
                     if type (rhs_val) is ConstantInt:
-                        rhs_val = Constant.real (Type.float (), rhs)
+                        #rhs_val = rhs_val.bitcast (Type.float ())
+                        rhs_val = builder.sitofp (rhs_val, Type.float ())
+                        #rhs_val = Constant.real (Type.float (), rhs_val)
                     else:
                         rhs_val = builder.bitcast (rhs_val, Type.float ())
 
@@ -1562,11 +1728,21 @@ class LLVMEmitter(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#MemberIndexExpression.
     def enterMemberIndexExpression(self, ctx):
-        pass
+        ctx.singleExpression ().leaves = ctx.leaves
+        ctx.expressionSequence ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#MemberIndexExpression.
     def exitMemberIndexExpression(self, ctx):
-        pass
+        values = ctx.singleExpression ().value
+        indeces = ctx.expressionSequence ().value
+
+        ctx.value = []
+        print module
+        for leaf, value, index in zip (ctx.leaves, values, indeces):
+            builder = Builder.new (leaf.getBB ())
+
+            gep = builder.gep (value, [index], inbounds = True, name = 'array.elem')
+            ctx.value.append (gep)
 
 
     # Enter a parse tree produced by ECMAScriptParser#ThisExpression.
@@ -1615,12 +1791,14 @@ class LLVMEmitter(ParseTreeListener):
                 rem = builder.frem
                 if type (lhs_val.type) is IntegerType:
                     if type (lhs_val) is ConstantInt:
-                        lhs_val = Constant.real (Type.float (), singles[0].getText ())
+                        #lhs_val = Constant.real (Type.float (), singles[0].getText ())
+                        lhs_val = builder.sitofp (lhs_val, Type.float ())
                     else:
                         lhs_val = builder.bitcast (lhs_val, Type.float ())
                 elif type (rhs_val.type) is IntegerType:
                     if type (rhs_val) is ConstantInt:
-                        rhs_val = Constant.real (Type.float (), singles[1].getText ())
+                        rhs_val = builder.sitofp (rhs_val, Type.float ())
+                        #rhs_val = Constant.real (Type.float (), singles[1].getText ())
                     else:
                         rhs_val = builder.bitcast (rhs_val, Type.float ())
                 else:
@@ -1671,9 +1849,9 @@ class LLVMEmitter(ParseTreeListener):
         ctx.value = []
         for leaf in ctx.leaves:
             if '.' in text:
-                ctx.value.append (Constant.real (Type.float (), float (str (ctx.getText ()))))
+                ctx.value.append (Constant.real (Type.float (), str (ctx.getText ())))
             else:
-                ctx.value.append (Constant.int (Type.int (), int (str (ctx.getText ()))))
+                ctx.value.append (Constant.int (Type.int (), int (str (ctx.getText ()), 0)))
 
 
     # Enter a parse tree produced by ECMAScriptParser#identifierName.
