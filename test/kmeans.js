@@ -6,40 +6,41 @@ function main () {
 	var num = [0, 0, 0, 0];
 
 	k = 0;
-	while (k < 100000) {
+	do {
 		i = 0;
-		while (i < 4) {
+		do {
 			num[i] = 0;
 			new_means[i] = 0.0;
 			i ++;
-		}
+		} while (i < 4);
 		i = 0;
-		while (i < 500) {
-			var less = 1000.0;
-			var idx = -1;
+		do {
+			less = 1000.0;
+			idx = -1;
 			j = 0;
-			while (j < 4) {
-				var tmp = input[i] - means[j];
+			do {
+				tmp = input[i] - means[j];
 				if (tmp < 0) {
 					tmp *= -1.0;
 				}
+				idx = idx
 				if (less > tmp) {
 					less = tmp;
 					idx = j;
 				}
 				j ++;
-			}
+			} while (j < 4);
 			new_means[idx] += input[i];
 			num[idx] ++;
 			i ++;
-		}
+		} while (i < 500);
 		i = 0;
 		while (i < 4) {
 			means[i] = new_means[i] / num[i];
 			i ++;
 		}
 		k ++;
-	}
+	} while (k < 100000);
 
 	return 0.0;
 }

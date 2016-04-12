@@ -3,19 +3,27 @@ function main () {
 
 	tmp = 0;
 
-	for (i = 0; i < 100000; i ++) {
-		for (j = 0; j < 100000; j ++) {
+	i = 0;
+	j = 0;
+	do {
+	//for (i = 0; i < 100000; i ++) {
+		do {
+		//for (j = 0; j < 100000; j ++) {
 			p1 += p2;
-			while (p1 > 10) {
+			do {
+			//while (p1 > 10) {
 				p1 /= 10;
-			}
+			} while (p1 > 10);
 			p2 = tmp;
-			while (p2 > 10) {
+			do {
+			//while (p2 > 10) {
 				p2 /= 10;
-			}
+			} while (p2 > 10);
 			tmp = p1;
-		}
-	}
+			j ++;
+		} while (j < 100000);
+		i ++;
+	} while (i < 100000);
 
 	return 0.0;
 }

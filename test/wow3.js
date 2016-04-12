@@ -16,4 +16,6 @@ function b (a) {
 	return a
 }
 
+main ()
+
 //exports.main = main

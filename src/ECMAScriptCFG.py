@@ -23,6 +23,8 @@ obj_ = 8
 function_ = 9
 unknown_ = sys.maxint
 
+obj_list = ['Array']
+
 node_root = []
 
 class Node:
@@ -50,6 +52,9 @@ class Node:
 
     def isIf (self):
         return self.if_node
+
+    def getSymTable (self):
+        return self.sym_table
 
     def inheritSymTable (self, parent):
         self.sym_table = dict (parent)
@@ -92,7 +97,6 @@ class Node:
         cld.root = self.root
         cld.var = dict (self.var)
         cld.arg = self.arg
-        cld.inheritSymTable (self.sym_table)
 
         l = len (self.cld)
         if l != 0:
@@ -127,6 +131,8 @@ class Node:
         del self.var[var]
 
     def setType (self, var, ty):
+        if '[' in var:
+            print var
         if type (ty) is list:
             print ('type of \'ty\' is list!\n\t'+str (ty)+'\n')
             traceback.print_stack ()
@@ -175,14 +181,17 @@ class ECMAScriptCFG(ParseTreeListener):
         else:
             return True
 
-    def iter_append (self, node, start):
+    def iter_append (self, node, start, prevs):
         ret = []
+        if node in prevs:
+            return []
+        prevs.append (node)
         if node.getChild () is None:
             node.appendChild (start)
             return [node]
 
         for leaf in node.getChild ():
-            ret.extend (self.iter_append (leaf, start))
+            ret.extend (self.iter_append (leaf, start, prevs))
         return ret
 
     # Enter a parse tree produced by ECMAScriptParser#program.
@@ -292,17 +301,19 @@ class ECMAScriptCFG(ParseTreeListener):
     def enterVariableDeclaration(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
             ctx.leaves[0].setCtx (ctx)
-            ctx.initialiser ().leaves = ctx.leaves
+            if ctx.initialiser () is not None:
+                ctx.initialiser ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#variableDeclaration.
     def exitVariableDeclaration(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.initialiser ().single
+            if ctx.initialiser () is not None:
+                single = ctx.initialiser ().single
 
-            if type (single) is list:
-                single = single[0]
-            for leaf in ctx.leaves:
-                leaf.setType (str (ctx.Identifier ()), leaf.getType (single))
+                if type (single) is list:
+                    single = single[0]
+                for leaf in ctx.leaves:
+                    leaf.setType (str (ctx.Identifier ()), leaf.getType (single))
 
 
     # Enter a parse tree produced by ECMAScriptParser#initialiser.
@@ -437,7 +448,8 @@ class ECMAScriptCFG(ParseTreeListener):
 
             nodes = []
             for leaf in seq.leaves:
-                self.iter_append (leaf, leaf)
+                #print ctx.getText ()
+                self.iter_append (leaf, leaf, [])
                 node = Node ()
                 leaf.appendChild (node)
                 nodes.append (node)
@@ -481,7 +493,7 @@ class ECMAScriptCFG(ParseTreeListener):
             if seqs[1] is not None:
                 nodes = []
                 for leaf in seqs[1].leaves:
-                    self.iter_append (leaf, leaf)
+                    self.iter_append (leaf, leaf, [])
                     node = Node ()
                     leaf.appendChild (node)
                     nodes.append (node)
@@ -727,6 +739,11 @@ class ECMAScriptCFG(ParseTreeListener):
                         i = 0
                         if type (arg) is not list:
                             arg = [arg]
+                        '''print;
+                        print ctx.getText ()
+                        print arg
+                        print params.Identifier ()
+                        print self.graph[self.current_f]'''
                         for param in params.Identifier ():
                             node.setType (str (param), arg[i])
                             i += 1
@@ -800,7 +817,12 @@ class ECMAScriptCFG(ParseTreeListener):
     # Exit a parse tree produced by ECMAScriptParser#elementList.
     def exitElementList(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            for single in ctx.singleExpression ()[0].single:
+            if type (ctx.singleExpression ()[0].single) is not list:
+                ctx.singleExpression ()[0].single = [ctx.singleExpression ()[0].single]
+            for single, leaf in zip (ctx.singleExpression ()[0].single, ctx.leaves):
+                #print ctx.getText ()
+                if type (single) is str:
+                    single = leaf.getType (single)
                 ctx.single = single + 3
 
 
@@ -952,18 +974,19 @@ class ECMAScriptCFG(ParseTreeListener):
             for single in singles:
                 print single.single
             print len (ctx.leaves)
+            print ctx.getText ()
             if type (singles[0].single) is list:
                 for l in range (len (ctx.leaves)):
                     ctx.single.append ([])
-                for single, leaf in zip (singles, ctx.leaves):
+                for single in singles:
                     idx = 0
-                    for s in single.single:
+                    for s, leaf in zip (single.single, ctx.leaves):
                         ctx.single[idx].append (leaf.getType (s))
                         idx += 1
             else:
                 for leaf in ctx.leaves:
                     ctx.single.append ([])
-                    for single, idx in zip (singles, range (len (singles))):
+                    for single in singles:
                         ctx.single[-1].append (leaf.getType (single.single))
 
 
@@ -1041,7 +1064,8 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Exit a parse tree produced by ECMAScriptParser#BitOrExpression.
     def exitBitOrExpression(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.single = int_
 
 
     # Enter a parse tree produced by ECMAScriptParser#AssignmentExpression.
@@ -1171,6 +1195,12 @@ class ECMAScriptCFG(ParseTreeListener):
             single = ctx.singleExpression ()
             args = ctx.arguments ().single
 
+            print single.single
+            print ctx.getText ()
+            if single.single in obj_list:
+                if single.single == 'Array':
+                    ctx.single = int_array
+                    return;
             if self.graph.setdefault (single.single, None) is None:
                 self.graph[single.single] = {'name':single.single, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False, 'return':False, 'struct':{}}
                 '''print (single.single + ' is not declared yet')
@@ -1178,10 +1208,10 @@ class ECMAScriptCFG(ParseTreeListener):
                 print;
                 return'''
 
-            if len (args[0]) != self.graph[single.single]['argc']:
+            '''if len (args[0]) != self.graph[single.single]['argc']:
                 print ('# of argument is not satisfied (' + single.single + ', ' + str (self.graph[single.single]['argc']) + ') - ' + str (len (args)))
                 traceback.print_stack ()
-                print;
+                print;'''
 
             func_info = self.graph[single.single]
 
@@ -1212,12 +1242,22 @@ class ECMAScriptCFG(ParseTreeListener):
 
     # Enter a parse tree produced by ECMAScriptParser#MemberDotExpression.
     def enterMemberDotExpression(self, ctx):
-        ctx.singleExpression ().leaves = ctx.leaves
-        ctx.identifierName ().leaves = ctx.leaves
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.singleExpression ().leaves = ctx.leaves
+            ctx.identifierName ().leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#MemberDotExpression.
     def exitMemberDotExpression(self, ctx):
-        pass
+        if self.hasattr_t (ctx, 'leaves'):
+            single = ctx.singleExpression ()
+            name = ctx.identifierName ().single
+            ctx.single = []
+            for leaf in ctx.leaves:
+                if name == 'length':
+                    ctx.single.append (int_)
+                else:
+                    ctx.single.append ("")
+                    print 'unexpected property is requested! (' + name + ')'
 
 
     # Enter a parse tree produced by ECMAScriptParser#NotExpression.
@@ -1627,7 +1667,8 @@ class ECMAScriptCFG(ParseTreeListener):
     def enterBitXOrExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
             ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
+            for single in ctx.singleExpression ():
+                single.leaves = ctx.leaves
 
     # Exit a parse tree produced by ECMAScriptParser#BitXOrExpression.
     def exitBitXOrExpression(self, ctx):

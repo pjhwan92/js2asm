@@ -21,14 +21,21 @@ function main () {
 	i = 1
 	i = 2
 	i = 3
-	while (i < 10) {
-		b[3] += i
+	e = 100;
+	while (i < 100000000) {
+		if (e % 2 == 0)
+			e *= i
+		else
+			e *= i+1
+		e = (e + 3) % 100232
 		i ++
 	}
 
-	f = d (10 + i, 20 + b[2])
+	f = d (10 + e, 20 + b[2])
 
-	return (b[1] * 4 + c * 0xFF)
+	return (e * 4 + f * 0xFF)
 }
+
+main ();
 
 //a (10, 20)
