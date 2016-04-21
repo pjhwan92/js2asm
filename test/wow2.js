@@ -36,6 +36,6 @@ function main () {
 	return (e * 4 + f * 0xFF)
 }
 
-main ();
+//main ();
 
 //a (10, 20)

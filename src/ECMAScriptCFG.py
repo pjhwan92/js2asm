@@ -1,13 +1,8 @@
 # Generated from ECMAScript.g4 by ANTLR 4.5.1
-import copy
 import sys
 import traceback
 
 from antlr4 import *
-
-from ECMAScriptLexer import ECMAScriptLexer
-from ECMAScriptParser import ECMAScriptParser
-from ECMAScriptListener import ECMAScriptListener
 
 noinfered_ = -2
 failed_ = -1
@@ -16,73 +11,69 @@ bool_ = 1
 int_ = 2
 float_ = 3
 string_ = 4
-int_array = 5
-float_array = 6
-string_array = 7
+int_array_ = 5
+float_array_ = 6
+string_array_ = 7
 obj_ = 8
 function_ = 9
 unknown_ = sys.maxint
 
-obj_list = ['Array']
-
 node_root = []
 
 class Node:
-    def __init__ (self, root = False, arg = [], if_node = False):
+    def __init__ (self, isRoot = False, arg = [], ifNode = False):
         self.cld = []
-        self.ctx = []
+        self.nxt = None
         self.var = {}
         self.arg = arg
         self.inst = {}
-        self.nxt = None
-        self.if_node = if_node
+        self.ifNode = ifNode
         self.bb = None
-        self.sym_table = {}
-        if root is True:
+        self.symTable = {}
+        if isRoot:
             self.root = self
-            self.inferable = True
         else:
             self.root = None
 
-    def cacheInst (self, var_name, inst):
-        self.inst[var_name] = inst
+    def cacheInst (self, var, inst):
+        self.inst[var] = inst
 
-    def getInst (self, var_name):
-        return self.inst.setdefault (var_name, None)
+    def getInst (self, var):
+        return self.inst.setdefault (var, None)
 
     def isIf (self):
-        return self.if_node
+        return self.ifNode
 
     def getSymTable (self):
-        return self.sym_table
+        return self.symTable
 
     def inheritSymTable (self, parent):
-        self.sym_table = dict (parent)
+        self.symTable = dict (parent)
 
-    def setSym (self, var_name, val, idx = None):
-        if idx is not None:
-            self.sym_table[var_name][idx] = val
+    def setSym (self, var, ty, idx = None):
+        if dix is None:
+            self.symTable[var] = ty
         else:
-            self.sym_table[var_name] = val
+            self.symTable[var][idx] = ty
 
-    def getSym (self, var_name, idx = None):
-        if idx is not None:
-            return self.sym_table[var_name].setdefault (idx, var_name)
+    def getSym (self, var, idx = None):
+        if idx is None:
+            return self.symTable.setdefault (var, var)
         else:
-            return self.sym_table.setdefault (var_name, var_name)
+            return self.symTable[var].setdefault (idx, var)
 
-    def hasSym (self, var_name):
-        return self.sym_table.has_key (var_name)
+    def hasSym (self, var):
+        return self.symTable.has_key (var)
 
-    def setFunc (self, func, func_name):
+    def setFunc (self, func, funcName):
         self.func = func
-        self.func_name = func_name
+        self.func_name = funcName
 
     def getFunc (self):
         return self.func
 
     def getFuncName (self):
-        return self.func_name
+        return self.funcName
 
     def setBB (self, bb):
         self.bb = bb
@@ -115,73 +106,56 @@ class Node:
     def getVar (self):
         return self.var
 
-    def setCtx (self, ctx):
-        self.ctx.append (ctx)
-
-    def getCtx (self):
-        return self.ctx
-
-    '''def removeChild (self, cld):
-        if cld not in self.cld:
-            return None
-
-        self.cld.remove (cld)'''
-
-    def delVar (self, var):
+    def delVar (var):
         del self.var[var]
 
     def setType (self, var, ty):
-        if '[' in var:
-            print var
         if type (ty) is list:
-            print ('type of \'ty\' is list!\n\t'+str (ty)+'\n')
+            print 'type of \'ty\' is list!\n\t' + str (ty) + '\n'
             traceback.print_stack ()
 
-        if type (var) is not str:
-            print ('type of \'var\' is not string\n\t'+str (var))
+        if type(var) is not str:
+            print 'type of \'ty\' is not str!\n\t' + str (ty) + '\n'
 
         if var in self.var:
             if self.var != ty:
-                #print node_root
                 self.var[var].append (ty)
         else:
             self.var[var] = [ty]
 
-        '''for leaf in self.cld:
-            leaf.setType (var, ty)'''
-
-
     def getType (self, var):
-        ty = self.var.setdefault (var, var)
+        if type (var) is int or type (var) is float:
+            return var
+        ty = self.var.setdefault (var, [unknown_])
 
         if ty == var:
             return ty
         else:
             return ty[-1]
 
-# This class defines a complete listener for a parse tree produced by ECMAScriptParser.
-class ECMAScriptCFG(ParseTreeListener):
+class ECMAScriptCFG(ParseTreeVisitor):
+
     def __init__ (self, filename):
         self.graph = {}
         self.idx = 0
-        self.current_f = 'global'
+        self.currentF = 'global'
 
     def anonymIdx (self):
-        self.anonym_idx += 1
-        return str (self.anonym_idx)
+        self.anonymIdx += 1
+        return str (self.anonymIdx)
 
     def getGraph (self):
         return self.graph
 
     def hasattr_t (self, ctx, s):
-        if not self.graph.__contains__ (self.current_f):
+        if not self.graph.__contains__ (self.currentF):
             return False
-        if not hasattr (ctx, s) or self.graph[self.current_f]['done'] is True:
+        if not hasattr (ctx, s) or self.graph[self.currentF]['done'] is True:
             return False
         else:
             return True
 
-    def iter_append (self, node, start, prevs):
+    def iter_append (self, node, start, prevs = []):
         ret = []
         if node in prevs:
             return []
@@ -194,1721 +168,1190 @@ class ECMAScriptCFG(ParseTreeListener):
             ret.extend (self.iter_append (leaf, start, prevs))
         return ret
 
-    # Enter a parse tree produced by ECMAScriptParser#program.
-    def enterProgram(self, ctx):
-        self.anonym_idx = 0
-
-    # Exit a parse tree produced by ECMAScriptParser#program.
-    def exitProgram(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#program.
+    def visitProgram(self, ctx):
+        self.idx = 0
+        self.anonymIdx = 0
+        self.visitChildren (ctx)
         self.root = node_root
 
 
-    # Enter a parse tree produced by ECMAScriptParser#sourceElements.
-    def enterSourceElements(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#sourceElements.
+    def visitSourceElements(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
             srcElems = ctx.sourceElement ()
 
             for srcElem in srcElems:
                 srcElem.leaves = ctx.leaves
+                self.visit (srcElem)
+        else:
+            self.visitChildren (ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#sourceElements.
-    def exitSourceElements(self, ctx):
-        pass
 
-
-    # Enter a parse tree produced by ECMAScriptParser#sourceElement.
-    def enterSourceElement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#sourceElement.
+    def visitSourceElement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
             ctx.statement ().leaves = ctx.leaves
+            self.visit (ctx.statement ())
+        else:
+            self.visitChildren (ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#sourceElement.
-    def exitSourceElement(self, ctx):
-        pass
 
-
-    # Enter a parse tree produced by ECMAScriptParser#statement.
-    def enterStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#statement.
+    def visitStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
             ctx.getChild (0).leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#statement.
-    def exitStatement(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
+            self.visit (ctx.getChild (0))
             if hasattr (ctx.getChild (0), 'break_'):
                 ctx.break_ = ctx.getChild (0).break_
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#block.
-    def enterBlock(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#block.
+    def visitBlock(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
             ctx.statementList ().leaves = ctx.leaves
+            self.visit (ctx.statementList ())
+        else:
+            self.visitChildren (ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#block.
-    def exitBlock(self, ctx):
-        pass
 
-
-    # Enter a parse tree produced by ECMAScriptParser#statementList.
-    def enterStatementList(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#statementList.
+    def visitStatementList(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
             stmts = ctx.statement ()
+            ctx.break_ = []
 
             for stmt in stmts:
                 stmt.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#statementList.
-    def exitStatementList(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            stmts = ctx.statement ()
-            ctx.break_ = []
-            for stmt in stmts:
+                self.visit (stmt)
                 if hasattr (stmt, 'break_'):
-                    ctx.break_.extend (stmt.break_)
+                    ctx.break_.append (stmt.break_)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#variableStatement.
-    def enterVariableStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#variableStatement.
+    def visitVariableStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
             ctx.variableDeclarationList ().leaves = ctx.leaves
+            self.visit (ctx.variableDeclarationList ())
+        else:
+            self.visitChildren (ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#variableStatement.
-    def exitVariableStatement(self, ctx):
-        pass
 
-
-    # Enter a parse tree produced by ECMAScriptParser#variableDeclarationList.
-    def enterVariableDeclarationList(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#variableDeclarationList.
+    def visitVariableDeclarationList(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            vardecls = ctx.variableDeclaration ()
+            varDecls = ctx.variableDeclaration ()
 
-            for var in vardecls:
-                var.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#variableDeclarationList.
-    def exitVariableDeclarationList(self, ctx):
-        pass
+            for varDecl in varDecls:
+                varDecl.leaves = ctx.leaves
+                self.visit (varDecl)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#variableDeclaration.
-    def enterVariableDeclaration(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#variableDeclaration.
+    def visitVariableDeclaration(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            if ctx.initialiser () is not None:
+            init = ctx.initialiser ()
+            if init is not None:
                 ctx.initialiser ().leaves = ctx.leaves
 
-    # Exit a parse tree produced by ECMAScriptParser#variableDeclaration.
-    def exitVariableDeclaration(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            if ctx.initialiser () is not None:
-                single = ctx.initialiser ().single
+                self.visit (init)
 
-                if type (single) is list:
-                    single = single[0]
+                value = ctx.initialiser ().value
+
+                if type (value) is list:
+                    value = value[0]
                 for leaf in ctx.leaves:
-                    leaf.setType (str (ctx.Identifier ()), leaf.getType (single))
+                    leaf.setType (str (ctx.Identifier ()), leaf.getType (value))
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#initialiser.
-    def enterInitialiser(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#initialiser.
+    def visitInitialiser(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
+            single = ctx.singleExpression ()
+            single.leaves = ctx.leaves
 
-    # Exit a parse tree produced by ECMAScriptParser#initialiser.
-    def exitInitialiser(self, ctx):
+            self.visit (single)
+
+            ctx.value = single.value
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#emptyStatement.
+    def visitEmptyStatement(self, ctx):
+        return self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#expressionStatement.
+    def visitExpressionStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = ctx.singleExpression ().single
+            seq = ctx.expressionSequence ()
+            seq.leaves = ctx.leaves
+            self.visit (seq)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#emptyStatement.
-    def enterEmptyStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#emptyStatement.
-    def exitEmptyStatement(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by ECMAScriptParser#expressionStatement.
-    def enterExpressionStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#ifStatement.
+    def visitIfStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.expressionSequence ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#expressionStatement.
-    def exitExpressionStatement(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by ECMAScriptParser#ifStatement.
-    def enterIfStatement(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
             seq = ctx.expressionSequence ()
             stmts = ctx.statement ()
+            ctx.break_ = []
 
             if_then = []
             else_then = []
 
             seq.leaves = ctx.leaves
             for leaf in ctx.leaves:
-                node = Node (if_node = True)
+                node = Node (ifNode = True)
                 leaf.appendChild (node)
                 if_then.append (node)
-                node = Node ()
+            stmts[0].leaves = if_then
+
+            self.visit (stmts[0])
+            if hasattr (stmts[0], 'break_'):
+                ctx.break_.extend (stmts[0].break_)
+
+            for leaf in ctx.leaves:
+                node = Node (ifNode = False)
                 leaf.appendChild (node)
                 else_then.append (node)
 
-            stmts[0].leaves = if_then
-            ctx.if_then = list (if_then)
-
             if len (stmts) == 2:
                 stmts[1].leaves = else_then
-            ctx.else_then = list (else_then)
-
-    # Exit a parse tree produced by ECMAScriptParser#ifStatement.
-    def exitIfStatement(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            stmts = ctx.statement ()
-            ctx.ex = list (ctx.leaves)
-            del ctx.leaves[:]
-            ctx.leaves.extend (stmts[0].leaves)
-            if hasattr (stmts[0], 'break_'):
-                ctx.break_ = stmts[0].break_
-
-            if len (stmts) == 2:
-                ctx.leaves.extend (stmts[1].leaves)
-                if hasattr (stmts[0], 'break_'):
+                self.visit (stmts[1])
+                if hasattr (stmts[1], 'break_'):
                     ctx.break_.extend (stmts[1].break_)
-            else:
-                ctx.leaves.extend (ctx.else_then)
+
+            del ctx.leaves[:]
+            ctx.leaves.extend (if_then)
+            ctx.leaves.extend (else_then)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#DoStatement.
-    def enterDoStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#DoStatement.
+    def visitDoStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.start_leaves = list (ctx.leaves)
+            stmt = ctx.statement ()
+            seq = ctx.expressionSequence ()
             nodes = []
             for leaf in ctx.leaves:
-                node = Node (if_node = True)
+                node = Node (ifNode = True)
                 leaf.appendChild (node)
                 nodes.append (node)
+            start_leaves = list (nodes)
+
+            stmt.leaves = nodes
+            seq.leaves = nodes
+            self.visit (stmt)
+            self.visit (seq)
+
+            for leaf in start_leaves:
+                self.iter_append (leaf, leaf)
+
             del ctx.leaves[:]
-            ctx.leaves.extend (nodes)
-
-            ctx.statement ().leaves = ctx.leaves
-            ctx.expressionSequence ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#DoStatement.
-    def exitDoStatement(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            nodes = []
-            #for leaf in ctx.start_leaves:
-                #lasts = self.iter_append (leaf, leaf)
-            for last in ctx.leaves:
+            for leaf in nodes:
                 node = Node ()
-                last.appendChild (node)
-                nodes.append (node)
+                leaf.appendChild (node)
+                ctx.leaves.append (node)
+        else:
+            self.visitChildren (ctx)
 
-            del ctx.leaves[:]
-            ctx.leaves.extend (nodes)
 
-
-    # Enter a parse tree produced by ECMAScriptParser#WhileStatement.
-    def enterWhileStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#WhileStatement.
+    def visitWhileStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
+            seq = ctx.expressionSequence ()
+            stmt = ctx.statement ()
+
             nodes1 = []
             nodes2 = []
+
+            print ctx.leaves
             for leaf in ctx.leaves:
                 node = Node ()
                 nodes1.append (node)
                 leaf.appendChild (node)
-            ctx.expressionSequence ().leaves = nodes1
+            start_leaves = list (nodes1)
+            seq.leaves = nodes1
+            self.visit (seq)
+
+            print nodes1
             for leaf in nodes1:
-                node = Node (if_node = True)
+                node = Node (ifNode = True)
                 nodes2.append (node)
                 leaf.appendChild (node)
-            ctx.statement ().leaves = nodes2
 
-    # Exit a parse tree produced by ECMAScriptParser#WhileStatement.
-    def exitWhileStatement(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            stmt = ctx.statement ()
-            seq = ctx.expressionSequence ()
+            stmt.leaves = nodes2
+            self.visit (stmt)
 
-            nodes = []
-            for leaf in seq.leaves:
-                #print ctx.getText ()
-                self.iter_append (leaf, leaf, [])
-                node = Node ()
-                leaf.appendChild (node)
-                nodes.append (node)
+            for leaf in start_leaves:
+                self.iter_append (leaf, leaf)
+
+            print nodes2
 
             del ctx.leaves[:]
-            ctx.leaves.extend (nodes)
+            for leaf in start_leaves:
+                node = Node ()
+                leaf.appendChild (node)
+                ctx.leaves.append (node)
+            print ctx.leaves
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#ForStatement.
-    def enterForStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#ForStatement.
+    def visitForStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
             seqs = ctx.expressionSequence ()
+            stmt = ctx.statement ()
+            nodes1 = []
 
             if seqs[0] is not None:
                 seqs[0].leaves = ctx.leaves
+                self.visit (seqs[0])
 
             if seqs[1] is not None:
-                nodes1 = []
-                for leaf in ctx.leaves:
-                    node = Node ()
-                    leaf.appendChild (node)
-                    nodes1.append (node)
-                seqs[1].leaves = nodes1
-            else:
-                nodes1 = ctx.leaves
+                seqs[1].leaves = ctx.leaves
+                self.visit (seqs[1])
 
-            nodes2 = []
-            for leaf in nodes1:
-                node = Node (if_node = True)
+            for leaf in ctx.leaves:
+                node = Node (ifNode = True)
                 leaf.appendChild (node)
-                nodes2.append (node)
-            seqs[2] = nodes2
-            ctx.statement ().leaves = ctx.leaves
+                nodes1.append (node)
+            startNodes = list (nodes1)
+            stmt.leaves = nodes1
+            self.visit (stmt)
 
-    # Exit a parse tree produced by ECMAScriptParser#ForStatement.
-    def exitForStatement(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            seqs = ctx.expressionSequence ()
+            if seqs[2] is not None:
+                seqs[2].leaves = nodes1
+                self.visit (seqs[2])
 
             if seqs[1] is not None:
-                nodes = []
-                for leaf in seqs[1].leaves:
-                    self.iter_append (leaf, leaf, [])
-                    node = Node ()
-                    leaf.appendChild (node)
-                    nodes.append (node)
-                del ctx.leaves[:]
-                ctx.leaves.extend (nodes)
-            else:
-                pass
+                seqs[1].leaves = nodes1
+                self.visit (seqs[1])
+
+            for leaf in startNodes:
+                self.iter_append (leaf, leaf)
+
+            del ctx.leaves[:]
+            for leaf in nodes1:
+                node = Node ()
+                leaf.appendChild (node)
+                ctx.leaves.append (node)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#ForVarStatement.
-    def enterForVarStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#ForVarStatement.
-    def exitForVarStatement(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#ForVarStatement.
+    def visitForVarStatement(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#ForInStatement.
-    def enterForInStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#ForInStatement.
-    def exitForInStatement(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#ForInStatement.
+    def visitForInStatement(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#ForVarInStatement.
-    def enterForVarInStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#ForVarInStatement.
-    def exitForVarInStatement(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#ForVarInStatement.
+    def visitForVarInStatement(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#continueStatement.
-    def enterContinueStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#continueStatement.
-    def exitContinueStatement(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#continueStatement.
+    def visitContinueStatement(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#breakStatement.
-    def enterBreakStatement(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-
-    # Exit a parse tree produced by ECMAScriptParser#breakStatement.
-    def exitBreakStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#breakStatement.
+    def visitBreakStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
             ctx.break_ = list (ctx.leaves)
-            ctx.leaves = []
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#returnStatement.
-    def enterReturnStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#returnStatement.
+    def visitReturnStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.expressionSequence ().leaves = ctx.leaves
+            seq = ctx.expressionSequence ()
 
-    # Exit a parse tree produced by ECMAScriptParser#returnStatement.
-    def exitReturnStatement(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            func_info = self.graph[self.current_f]
-            func_info['return'] = True
+            seq.leaves = ctx.leaves
+            self.visit (seq)
 
-            for leaf, single in zip (ctx.leaves, ctx.expressionSequence ().single):
+            funcInfo = self.graph[self.currentF]
+            funcInfo['return'] = True
+
+            for leaf, value in zip (ctx.leaves, seq.value):
                 try:
-                    idx = func_info['argv'].index (leaf.getArg ())
-                    ty = leaf.getType (single)
-                    if func_info['call'][idx] == unknown_ or ty > func_info['call'][idx]:
-                        func_info['call'][idx] = ty
+                    idx = funcInfo['argv'].index (leaf.getArg ())
+                    ty = leaf.getType (value)
+                    if funcInfo['call'][idx] == unknown_ or ty > funcInfo['call'][idx]:
+                        funcInfo['call'][idx] = ty
                     break
                 except ValueError:
-                    func_info['argv'].append (leaf.getArg ())
-                    func_info['call'].append (unknown_)
-
-    # Enter a parse tree produced by ECMAScriptParser#withStatement.
-    def enterWithStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#withStatement.
-    def exitWithStatement(self, ctx):
-        pass
+                    funcInfo['argv'].append (leaf.getArg ())
+                    funcInfo['call'].append (unknown_)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#switchStatement.
-    def enterSwitchStatement(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#withStatement.
+    def visitWithStatement(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#switchStatement.
+    def visitSwitchStatement(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.expressionSequence ().leaves = ctx.leaves
-            ctx.caseBlock ().leaves = ctx.leaves
+            seq = ctx.expressionSequence ()
+            cases = ctx.caseBlock ()
 
-    # Exit a parse tree produced by ECMAScriptParser#switchStatement.
-    def exitSwitchStatement(self, ctx):
-        pass
+            seq.leaves = ctx.leaves
+            self.visit (seq)
 
+            cases.leaves = ctx.leaves
+            self.visit (cases)
 
-    # Enter a parse tree produced by ECMAScriptParser#caseBlock.
-    def enterCaseBlock(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.caseClauses (0).leaves = ctx.leaves
+            breaks_ = cases.break_
 
-    # Exit a parse tree produced by ECMAScriptParser#caseBlock.
-    def exitCaseBlock(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by ECMAScriptParser#caseClauses.
-    def enterCaseClauses(self, ctx):
-        pass
-        '''if self.hasattr_t (ctx, 'leaves'):
-            cases = ctx.caseClause ()
-            ctx.case_start = []
-            for case in cases:
-                ctx.case_start.append ([])
-                for leaf in ctx.leaves:
-                    node = Node ()
-                    ctx.case_start[-1].append (node)
-                case.leaves = list (ctx.case_start[-1])'''
-
-    # Exit a parse tree produced by ECMAScriptParser#caseClauses.
-    def exitCaseClauses(self, ctx):
-        pass
-        '''if self.hasattr_t (ctx, 'leaves'):
-            cases = ctx.caseClause ()
-            prev = None
-            for case in cases:
-                if not hasattr (case, 'break_') and prev is not None:'''
+            for leaf in breaks_:
+                node = Node ()
+                leaf.appendChild (node)
+                ctx.leaves.append (node)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#caseClause.
-    def enterCaseClause(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#caseClause.
-    def exitCaseClause(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#caseBlock.
+    def visitCaseBlock(self, ctx):
+        return self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#defaultClause.
-    def enterDefaultClause(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#defaultClause.
-    def exitDefaultClause(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#caseClauses.
+    def visitCaseClauses(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#labelledStatement.
-    def enterLabelledStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#labelledStatement.
-    def exitLabelledStatement(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#caseClause.
+    def visitCaseClause(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#throwStatement.
-    def enterThrowStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#throwStatement.
-    def exitThrowStatement(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#defaultClause.
+    def visitDefaultClause(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#tryStatement.
-    def enterTryStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#tryStatement.
-    def exitTryStatement(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#labelledStatement.
+    def visitLabelledStatement(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#catchProduction.
-    def enterCatchProduction(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#catchProduction.
-    def exitCatchProduction(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#throwStatement.
+    def visitThrowStatement(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#finallyProduction.
-    def enterFinallyProduction(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#finallyProduction.
-    def exitFinallyProduction(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#tryStatement.
+    def visitTryStatement(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#debuggerStatement.
-    def enterDebuggerStatement(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#debuggerStatement.
-    def exitDebuggerStatement(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#catchProduction.
+    def visitCatchProduction(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#functionDeclaration.
-    def enterFunctionDeclaration(self, ctx):
-        ctx.parent_f = self.current_f
-        self.current_f = str (ctx.Identifier ())
+    # Visit a parse tree produced by ECMAScriptParser#finallyProduction.
+    def visitFinallyProduction(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#debuggerStatement.
+    def visitDebuggerStatement(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#functionDeclaration.
+    def visitFunctionDeclaration(self, ctx):
+        ctx.parentF = self.currentF
+        self.currentF = str (ctx.Identifier ())
         params = ctx.formalParameterList ()
+        body = ctx.functionBody ()
 
-        if not self.graph.__contains__ (self.current_f):
-            self.graph[self.current_f] = {'name':self.current_f, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False, 'return':False, 'struct':{}}
-            node_root.append (self.graph[self.current_f])
-            if params is None:
-                node = Node (root=True)
-                self.graph[self.current_f]['root'].append (node)
-                ctx.functionBody ().leaves = [node]
-                node.setCtx (ctx)
+        if not self.graph.__contains__ (self.currentF):
+            self.graph[self.currentF] = {'name': self.currentF, 'root': [], 'call': [], 'argv': [], 'argc': 0, 'done': False, 'return': False}
+            node_root.append (self.graph[self.currentF])
+
+            if params is not None:
+                self.visit (params)
+                self.graph[self.currentF]['argc'] = len (params.value)
             else:
-                self.graph[self.current_f]['argc'] = len (params.Identifier ())
+                node = Node (isRoot = True)
+                self.graph[self.currentF]['root'].append (node)
+                body.leaves = [node]
         else:
             nodes = []
-            for arg in self.graph[self.current_f]['argv']:
-                idx = self.graph[self.current_f]['argv'].index (arg)
-                if not hasattr (self.graph[self.current_f], 'idx'):
+
+            for arg in self.graph[self.currentF]['argv']:
+                idx = self.graph[self.currentF]['argv'].index (arg)
+                if not hasattr (self.graph[self.currentF], 'idx'):
                     self.idx += 1
-                    self.graph[self.current_f]['idx'] = [self.idx]
+                    self.graph[self.currentF]['idx'] = [self.idx]
                 else:
                     try:
-                        idx = self.graph[self.current_f]['idx'][idx]
+                        idx = self.graph[self.currentF]['idx'][idx]
                     except KeyError:
                         self.idx += 1
-                        self.graph[self.current_f]['idx'].append (self.idx)
-                ret = self.graph[self.current_f]['call'][idx]
+                        self.graph[self.currentF]['idx'].append (self.idx)
+
+                ret = self.graph[self.currentF]['call'][idx]
+
                 if ret == noinfered_ or ret == unknown_:
-                    self.graph[self.current_f]['root'] = [n for n in self.graph[self.current_f]['root'] if n.getArg () != arg]
-                    self.graph[self.current_f]['struct'][str (arg)] = {}
-                    node = Node (root = True, arg = arg)
+                    self.graph[self.currentF]['root'] = [n for n in self.graph[self.currentF]['root'] if n.getArg () != arg]
+                    node = Node (isRoot = True, arg = arg)
                     if params is not None:
+                        self.visit (params)
                         i = 0
                         if type (arg) is not list:
                             arg = [arg]
-                        '''print;
-                        print ctx.getText ()
-                        print arg
-                        print params.Identifier ()
-                        print self.graph[self.current_f]'''
-                        for param in params.Identifier ():
-                            node.setType (str (param), arg[i])
+                        for param in params.value:
+                            node.setType (param, arg[i])
                             i += 1
-                        self.graph[self.current_f]['inferable'] = False
-                        self.graph[self.current_f]['argc'] = len (params.Identifier ())
+                        self.graph[self.currentF]['argc'] = len (arg)
                     nodes.append (node)
             if len (nodes) != 0:
-                ctx.functionBody ().leaves = list (nodes)
-                self.graph[self.current_f]['root'].extend (nodes)
-                self.graph[self.current_f]['done'] = False
-                ctx.functionBody ().leaves[0].setCtx (ctx)
+                body.leaves = list (nodes)
+                self.graph[self.currentF]['root'].extend (nodes)
+                self.graph[self.currentF]['done'] = False
 
-    # Exit a parse tree produced by ECMAScriptParser#functionDeclaration.
-    def exitFunctionDeclaration(self, ctx):
-        '''if self.graph[self.current_f]['argc'] != 0:
-            del self.graph[self.current_f]['argv'][0]
-            del self.graph[self.current_f]['call'][0]'''
-        if [] in self.graph[self.current_f]['call'] and self.graph[self.current_f]['return'] is True:
-            self.graph[self.current_f]['done'] = False
-        elif unknown_ not in [ret for ret in self.graph[self.current_f]['call']]:
-            self.graph[self.current_f]['done'] = True
+        self.visit (body)
+
+        if [] in self.graph[self.currentF]['call'] and self.graph[self.currentF]['return'] is True:
+            self.graph[self.currentF]['done'] = False
+        elif unknown_ not in [ret for ret in self.graph[self.currentF]['call']]:
+            self.graph[self.currentF]['done'] = True
         else:
-            self.graph[self.current_f]['done'] = False
-        self.current_f = ctx.parent_f
+            self.graph[self.currentF]['done'] = False
+        self.currentF = ctx.parentF
 
 
-    # Enter a parse tree produced by ECMAScriptParser#formalParameterList.
-    def enterFormalParameterList(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#formalParameterList.
+    def visitFormalParameterList(self, ctx):
+        names = ctx.Identifier ()
+        ctx.value = []
 
-    # Exit a parse tree produced by ECMAScriptParser#formalParameterList.
-    def exitFormalParameterList(self, ctx):
+        for name in names:
+            ctx.value.append (str (name))
+
+
+    # Visit a parse tree produced by ECMAScriptParser#functionBody.
+    def visitFunctionBody(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = []
-            for param in ctx.Identifier ():
-                ctx.single.append (param)
+            srcElems = ctx.sourceElements ()
+            srcElems.leaves = ctx.leaves
+            self.visit (srcElems)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#functionBody.
-    def enterFunctionBody(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#arrayLiteral.
+    def visitArrayLiteral(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.sourceElements ().leaves = ctx.leaves
+            ctx.value = []
+            elem = ctx.elementList ()
+            elem.leaves = ctx.leaves
+            self.visit (elem)
+            for arr in elem.value:
+                val = -1
+                for tmp in arr:
+                    if tmp > val:
+                        val = tmp
+                ctx.value.append (val + int_array_ - int_)
+        else:
+            self.visitChildren (ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#functionBody.
-    def exitFunctionBody(self, ctx):
-        pass
 
-
-    # Enter a parse tree produced by ECMAScriptParser#arrayLiteral.
-    def enterArrayLiteral(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#elementList.
+    def visitElementList(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.elementList ().leaves = ctx.leaves
+            tmp = []
+            singles = ctx.singleExpression ()
+            for single in singles:
+                single.leaves = ctx.leaves
+                self.visit (single)
+                tmp.append (single.value)
 
-    # Exit a parse tree produced by ECMAScriptParser#arrayLiteral.
-    def exitArrayLiteral(self, ctx):
+            ctx.value = [[row[i] for row in tmp for i in range (len (tmp[0]))]]
+
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#elision.
+    def visitElision(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#objectLiteral.
+    def visitObjectLiteral(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#propertyNameAndValueList.
+    def visitPropertyNameAndValueList(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
+    def visitPropertyExpressionAssignment(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#PropertyGetter.
+    def visitPropertyGetter(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#PropertySetter.
+    def visitPropertySetter(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#propertyName.
+    def visitPropertyName(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#propertySetParameterList.
+    def visitPropertySetParameterList(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#arguments.
+    def visitArguments(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = ctx.elementList ().single
+            argList = ctx.argumentList ()
+
+            if argList is not None:
+                argList.leaves = ctx.leaves
+                self.visit (argList)
+                ctx.value = argList.value
+            else:
+                ctx.value = []
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#elementList.
-    def enterElementList(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#argumentList.
+    def visitArgumentList(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
+            ctx.value = []
             singles = ctx.singleExpression ()
 
             for single in singles:
                 single.leaves = ctx.leaves
+                self.visit (single)
 
-    # Exit a parse tree produced by ECMAScriptParser#elementList.
-    def exitElementList(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            if type (ctx.singleExpression ()[0].single) is not list:
-                ctx.singleExpression ()[0].single = [ctx.singleExpression ()[0].single]
-            for single, leaf in zip (ctx.singleExpression ()[0].single, ctx.leaves):
-                #print ctx.getText ()
-                if type (single) is str:
-                    single = leaf.getType (single)
-                ctx.single = single + 3
-
-
-    # Enter a parse tree produced by ECMAScriptParser#elision.
-    def enterElision(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#elision.
-    def exitElision(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by ECMAScriptParser#objectLiteral.
-    def enterObjectLiteral(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.propertyNameAndValueList ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#objectLiteral.
-    def exitObjectLiteral(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            '''ctx.single = []
-            for leaf in ctx.leaves:
-                leaf.setType ('obj_tmp_ret_' + str (self.anonymIdx ()), obj_)
-                ctx.single.append (ctx.propertyNameAndValueList ().single)'''
-            ctx.single = ctx.propertyNameAndValueList ().single
-
-
-    # Enter a parse tree produced by ECMAScriptParser#propertyNameAndValueList.
-    def enterPropertyNameAndValueList(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            props = ctx.propertyAssignment ()
-
-            for prop in props:
-                prop.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#propertyNameAndValueList.
-    def exitPropertyNameAndValueList(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            if unknown_ not in [n.single for n in ctx.propertyAssignment ()]:
-                ctx.single = obj_
-            else:
-                ctx.single = unknown_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
-    def enterPropertyExpressionAssignment(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.propertyName ().leaves = ctx.leaves
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#PropertyExpressionAssignment.
-    def exitPropertyExpressionAssignment(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            prop = ctx.propertyName ().single
-            single = ctx.singleExpression ().single
-            ctx.single = obj_
-
-            for leaf in ctx.leaves:
-                if self.graph[self.current_f]['struct'].has_key (str (leaf.getArg ())):
-                    ty = leaf.getType (single)
-                    if ty != function_:
-                        self.graph[self.current_f]['struct'][str (leaf.getArg ())][prop] = ty
-                    else:
-                        self.graph[self.current_f]['struct'][str (leaf.getArg ())][prop] = single
-                else:
-                    ctx.single = unknown_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#PropertyGetter.
-    def enterPropertyGetter(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.getter ().leaves = ctx.leaves
-            ctx.functionBody ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#PropertyGetter.
-    def exitPropertyGetter(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by ECMAScriptParser#PropertySetter.
-    def enterPropertySetter(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.setter ().leaves = ctx.leaves
-            ctx.propertySetParameterList ().leaves = ctx.leaves
-            ctx.functionBody ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#PropertySetter.
-    def exitPropertySetter(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by ECMAScriptParser#propertyName.
-    def enterPropertyName(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            if ctx.identifierName () is not None:
-                ctx.identifierName ().leaves = ctx.leaves
-            if ctx.numericLiteral () is not None:
-                ctx.numericLiteral ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#propertyName.
-    def exitPropertyName(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            if ctx.identifierName () is not None:
-                ctx.single = ctx.identifierName ().single
-            if ctx.numericLiteral () is not None:
-                ctx.single = ctx.numericLiteral ().single
-
-
-    # Enter a parse tree produced by ECMAScriptParser#propertySetParameterList.
-    def enterPropertySetParameterList(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#propertySetParameterList.
-    def exitPropertySetParameterList(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by ECMAScriptParser#arguments.
-    def enterArguments(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            if ctx.argumentList () is not None:
-                ctx.argumentList ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#arguments.
-    def exitArguments(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            if ctx.argumentList () is not None:
-                ctx.single = ctx.argumentList ().single
-            else:
-                ctx.single = []
-
-
-    # Enter a parse tree produced by ECMAScriptParser#argumentList.
-    def enterArgumentList(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
-
-            for single in singles:
-                single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#argumentList.
-    def exitArgumentList(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            singles = ctx.singleExpression ()
-
-            ctx.single = []
-            for single in singles:
-                print single.single
-            print len (ctx.leaves)
-            print ctx.getText ()
-            if type (singles[0].single) is list:
+            if type (singles[0].value) is list:
                 for l in range (len (ctx.leaves)):
-                    ctx.single.append ([])
+                    ctx.value.append ([])
                 for single in singles:
                     idx = 0
-                    for s, leaf in zip (single.single, ctx.leaves):
-                        ctx.single[idx].append (leaf.getType (s))
+                    for s, leaf in zip (single.value, ctx.leaves):
+                        ctx.value[idx].append (leaf.getType (s))
                         idx += 1
             else:
                 for leaf in ctx.leaves:
-                    ctx.single.append ([])
+                    ctx.value.append ([])
                     for single in singles:
-                        ctx.single[-1].append (leaf.getType (single.single))
+                        ctx.value[-1].append (leaf.getType (single.value))
 
 
-    # Enter a parse tree produced by ECMAScriptParser#expressionSequence.
-    def enterExpressionSequence(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#expressionSequence.
+    def visitExpressionSequence(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
+            ctx.value = []
             singles = ctx.singleExpression ()
-
             for single in singles:
                 single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#expressionSequence.
-    def exitExpressionSequence(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ()[0]
-            ctx.single = []
-
-            if single.single is not list:
-                single.single = [single.single]
-            for leaf, val in zip (ctx.leaves, single.single):
+                self.visit (single)
+            if single.value is not list:
+                single.value = [single.value]
+            for val in single.value:
                 if type (val) is not list:
                     ty = [val]
                 else:
                     ty = val
-                ctx.single.extend (ty)
+                ctx.value.extend (ty)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#TernaryExpression.
-    def enterTernaryExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#TernaryExpression.
+    def visitTernaryExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#LogicalAndExpression.
+    def visitLogicalAndExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            start_leaves = list (ctx.leaves)
-            nodes1 = []
-            nodes2 = []
+            ctx.value = []
+            single = ctx.singleExpression ()
+            self.visit (single)
 
             for leaf in ctx.leaves:
-                node = Node (if_node = True)
-                leaf.appendChild (node)
-                nodes1.append (node)
+                ctx.value.append (bool_)
+        else:
+            self.visitChildren (ctx)
 
-                node = Node ()
-                leaf.appendChild (node)
-                nodes2.append (node)
 
-            singles = ctx.singleExpression ()
-            singles[1].leaves = nodes1
-            singles[2].leaves = nodes2
-            singles[0].leaves = start_leaves
-
-            del ctx.leaves[:]
-            ctx.leaves.extend (nodes1 + nodes2)
-
-    # Exit a parse tree produced by ECMAScriptParser#TernaryExpression.
-    def exitTernaryExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#PreIncrementExpression.
+    def visitPreIncrementExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = []
-            singles = ctx.singleExpression ()
+            ctx.value = []
+            for leaf in ctx.leaves:
+                ctx.value.append (int_)
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#ObjectLiteralExpression.
+    def visitObjectLiteralExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#InExpression.
+    def visitInExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#LogicalOrExpression.
+    def visitLogicalOrExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.value = []
+            single = ctx.singleExpression ()
+            self.visit (single)
 
             for leaf in ctx.leaves:
-                if leaf.isIf ():
-                    ctx.single.append (singles[1].single)
+                ctx.value.append (bool_)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#NotExpression.
+    def visitNotExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.value = []
+            for leaf in ctx.leaves:
+                ctx.value.append (bool_)
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#PreDecreaseExpression.
+    def visitPreDecreaseExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.value = []
+            for leaf in ctx.leaves:
+                ctx.value.append (int_)
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#ArgumentsExpression.
+    def visitArgumentsExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.value = []
+            single = ctx.singleExpression ()
+            args = ctx.arguments ()
+
+            args.leaves = ctx.leaves
+            self.visit (args)
+            single.leaves = ctx.leaves
+            self.visit (single)
+
+            '''print single.value
+            print ctx.getText ()'''
+
+            if self.graph.setdefault (single.value, None) is None:
+                self.graph[single.value] = {'name': single.value, 'root': [], 'call': [], 'argv': [], 'argc': 0, 'done': False, 'return': False}
+
+            funcInfo = self.graph[single.value]
+
+            idx = 0
+            for leaf, arg in zip (ctx.leaves, args.value):
+                try:
+                    idx = funcInfo['argv'].index (arg)
+                except ValueError:
+                    funcInfo['argv'].append (arg)
+                    funcInfo['call'].append (unknown_)
+                    idx = funcInfo['argv'].index (arg)
+                    funcInfo['done'] = False
+                if len (funcInfo['call']) <= idx:
+                    func = noinfered_
                 else:
-                    ctx.single.append (singles[2].single)
+                    func = funcInfo['call'][idx]
+
+                if func == noinfered_:
+                    funcInfo['done'] = False
+                    funcInfo['call'][idx] = unknown_
+                    ctx.value.append (unknown_)
+                elif func == unknown_:
+                    funcInfo['done'] = False
+                    ctx.value.append (unknown_)
+                else:
+                    ctx.value = func
+
+                idx += 1
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#BitOrExpression.
-    def enterBitOrExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#ThisExpression.
+    def visitThisExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#FunctionExpression.
+    def visitFunctionExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#UnaryMinusExpression.
+    def visitUnaryMinusExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
+            ctx.value = []
+            single = ctx.singleExpression ()
+            self.visit (single)
+        else:
+            self.visitChildren (ctx)
 
-            for single in singles:
-                single.leaves = ctx.leaves
 
-    # Exit a parse tree produced by ECMAScriptParser#BitOrExpression.
-    def exitBitOrExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#PostDecreaseExpression.
+    def visitPostDecreaseExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = int_
+            ctx.value = []
+            for leaf in ctx.leaves:
+                ctx.value.append (int_)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#AssignmentExpression.
-    def enterAssignmentExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-            ctx.expressionSequence ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#AssignmentExpression.
-    def exitAssignmentExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#AssignmentExpression.
+    def visitAssignmentExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
             single = ctx.singleExpression ()
             seq = ctx.expressionSequence ()
 
-            if type (seq.single[0]) is list:
+            seq.leaves = ctx.leaves
+            self.visit (seq)
+            single.leaves = ctx.leaves
+            self.visit (single)
+
+            if type (seq.value[0]) is list:
                 idx = 0
                 for leaf in ctx.leaves:
-                    ty = leaf.getType (seq.single[0][idx])
-                    leaf.setType (str (single.single), ty)
+                    ty = leaf.getType (seq.value[0][idx])
+                    leaf.setType (str (single.value), ty)
                     idx += 1
             else:
                 for leaf in ctx.leaves:
-                    ty = leaf.getType (seq.single[0])
-                    leaf.setType (single.single, ty)
+                    ty = leaf.getType (seq.value[0])
+                    leaf.setType (str (single.value), ty)
+            ctx.value = None
+        else:
+            self.visitChildren (ctx)
 
-            ctx.single = None
+
+    # Visit a parse tree produced by ECMAScriptParser#TypeofExpression.
+    def visitTypeofExpression(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#LogicalAndExpression.
-    def enterLogicalAndExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#InstanceofExpression.
+    def visitInstanceofExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#UnaryPlusExpression.
+    def visitUnaryPlusExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
+            ctx.value = []
+            single = ctx.singleExpression ()
+            self.visit (single)
+            for val in single:
+                if val > float_:
+                    ctx.value.append (float_)
+                else:
+                    ctx.value.append (val)
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#DeleteExpression.
+    def visitDeleteExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#EqualityExpression.
+    def visitEqualityExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.value = []
             singles = ctx.singleExpression ()
 
             for single in singles:
                 single.leaves = ctx.leaves
+                self.visit (single)
 
-    # Exit a parse tree produced by ECMAScriptParser#LogicalAndExpression.
-    def exitLogicalAndExpression(self, ctx):
+            for leaf in ctx.leaves:
+                ctx.value.append (bool_)
+        else:
+            self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#BitXOrExpression.
+    def visitBitXOrExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = bool_
+            ctx.value = []
+            singles = ctx.singleExpression ()
+            for single in singles:
+                single.leaves = ctx.leaves
+                self.visit (single)
+            for val1, val2 in zip (singles[0].value, singles[1].value):
+                val = None
+                if val1 < null_ and val2 < null_:
+                    val = unknown_
+                elif val1 > val2:
+                    val = val1
+                else:
+                    val = val2
+                if val > float_:
+                    val = float_
+                ctx.value.append (val)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#InstanceofExpression.
-    def enterInstanceofExpression(self, ctx):
+
+    # Visit a parse tree produced by ECMAScriptParser#MultiplicativeExpression.
+    def visitMultiplicativeExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
+            ctx.value = []
+            singles = ctx.singleExpression ()
+            for single in singles:
+                single.leaves = ctx.leaves
+                self.visit (single)
+
+            for leaf in ctx.leaves:
+                if type (singles[0].value) is list:
+                    ty1 = leaf.getType (singles[0].value[0])
+                else:
+                    ty1 = leaf.getType (singles[0].value)
+                if type (singles[1].value) is list:
+                    ty2 = leaf.getType (singles[1].value[0])
+                else:
+                    ty2 = leaf.getType (singles[1].value)
+
+                ty = ty1 if ty1 > ty2 else ty2
+                if ty > float_:
+                    ty = float_
+
+                ctx.value.append (ty)
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#BitShiftExpression.
+    def visitBitShiftExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#ParenthesizedExpression.
+    def visitParenthesizedExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            seq = ctx.expressionSequence ()
+            seq.leaves = ctx.leaves
+            self.visit (seq)
+
+            ctx.value = ctx.expressionSequence ().value
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#AdditiveExpression.
+    def visitAdditiveExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.value = []
             singles = ctx.singleExpression ()
 
             for single in singles:
                 single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#InstanceofExpression.
-    def exitInstanceofExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.ty = bool_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#ObjectLiteralExpression.
-    def enterObjectLiteralExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.objectLiteral ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#ObjectLiteralExpression.
-    def exitObjectLiteralExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = ctx.objectLiteral ().single
-
-
-    # Enter a parse tree produced by ECMAScriptParser#PreDecreaseExpression.
-    def enterPreDecreaseExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#PreDecreaseExpression.
-    def exitPreDecreaseExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ().single
+                self.visit (single)
 
             for leaf in ctx.leaves:
-                ty = leaf.getType (single)
-                if ty != int_:
-                    leaf.setType (single, failed_)
-                    self.graph[self.current_f]['compilable'] = False
+                if type (singles[0].value) is list:
+                    ty1 = leaf.getType (singles[0].value[0])
+                else:
+                    ty1 = leaf.getType (singles[0].value)
+                if type (singles[1].value) is list:
+                    ty2 = leaf.getType (singles[1].value[0])
+                else:
+                    ty2 = leaf.getType (singles[1].value)
+
+                ty = ty1 if ty1 > ty2 else ty2
+
+                ctx.value.append (ty)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
-    def enterArrayLiteralExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#RelationalExpression.
+    def visitRelationalExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.arrayLiteral ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
-    def exitArrayLiteralExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = ctx.arrayLiteral ().single
-
-
-    # Enter a parse tree produced by ECMAScriptParser#InExpression.
-    def enterInExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
+            ctx.value = bool_
             singles = ctx.singleExpression ()
 
             for single in singles:
                 single.leaves = ctx.leaves
+                self.visit (single)
+        else:
+            self.visitChildren (ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#InExpression.
-    def exitInExpression(self, ctx):
+
+    # Visit a parse tree produced by ECMAScriptParser#PostIncrementExpression.
+    def visitPostIncrementExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = bool_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#ArgumentsExpression.
-    def enterArgumentsExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-            ctx.arguments ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#ArgumentsExpression.
-    def exitArgumentsExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = []
-            single = ctx.singleExpression ()
-            args = ctx.arguments ().single
-
-            print single.single
-            print ctx.getText ()
-            if single.single in obj_list:
-                if single.single == 'Array':
-                    ctx.single = int_array
-                    return;
-            if self.graph.setdefault (single.single, None) is None:
-                self.graph[single.single] = {'name':single.single, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False, 'return':False, 'struct':{}}
-                '''print (single.single + ' is not declared yet')
-                traceback.print_stack ()
-                print;
-                return'''
-
-            '''if len (args[0]) != self.graph[single.single]['argc']:
-                print ('# of argument is not satisfied (' + single.single + ', ' + str (self.graph[single.single]['argc']) + ') - ' + str (len (args)))
-                traceback.print_stack ()
-                print;'''
-
-            func_info = self.graph[single.single]
-
-            idx = 0
-            for leaf, arg in zip (ctx.leaves, args):
-                try:
-                    idx = func_info['argv'].index (arg)
-                except ValueError:
-                    func_info['argv'].append (arg)
-                    func_info['call'].append (unknown_)
-                    idx = func_info['argv'].index (arg)
-                    func_info['done'] = False
-                if len (func_info['call']) <= idx:
-                    func = noinfered_
-                else:
-                    func = func_info['call'][idx]
-                if func == noinfered_:
-                    func_info['done'] = False
-                    func_info['call'][idx] = unknown_
-                    ctx.single.append (unknown_)
-                elif func == unknown_:
-                    func_info['done'] = False
-                    ctx.single.append (unknown_)
-                else:
-                    ctx.single = func
-                idx += 1
-
-
-    # Enter a parse tree produced by ECMAScriptParser#MemberDotExpression.
-    def enterMemberDotExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.singleExpression ().leaves = ctx.leaves
-            ctx.identifierName ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#MemberDotExpression.
-    def exitMemberDotExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ()
-            name = ctx.identifierName ().single
-            ctx.single = []
+            ctx.value = []
             for leaf in ctx.leaves:
-                if name == 'length':
-                    ctx.single.append (int_)
-                else:
-                    ctx.single.append ("")
-                    print 'unexpected property is requested! (' + name + ')'
+                ctx.value.append (int_)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#NotExpression.
-    def enterNotExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#BitNotExpression.
+    def visitBitNotExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#NewExpression.
+    def visitNewExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#LiteralExpression.
+    def visitLiteralExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
+            lit = ctx.literal ()
+            lit.leaves = ctx.leaves
+            self.visit (lit)
+            ctx.value = lit.value
+        else:
+            self.visitChildren (ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#NotExpression.
-    def exitNotExpression(self, ctx):
+
+    # Visit a parse tree produced by ECMAScriptParser#ArrayLiteralExpression.
+    def visitArrayLiteralExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = bool_
+            arr = ctx.arrayLiteral ()
+            arr.leaves = ctx.leaves
+            self.visit (arr)
+            ctx.value = arr.value
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#DeleteExpression.
-    def enterDeleteExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#MemberDotExpression.
+    def visitMemberDotExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#MemberIndexExpression.
+    def visitMemberIndexExpression(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#DeleteExpression.
-    def exitDeleteExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
+            ctx.value = []
             single = ctx.singleExpression ()
-            if not hasattr (single, 'single'):
-                return
-
-            for leaf in ctx.leaves:
-                leaf.delVar (single.single)
-
-            ctx.single = bool_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#IdentifierExpression.
-    def enterIdentifierExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-
-    # Exit a parse tree produced by ECMAScriptParser#IdentifierExpression.
-    def exitIdentifierExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = str (ctx.Identifier ())
-
-
-    # Enter a parse tree produced by ECMAScriptParser#BitAndExpression.
-    def enterBitAndExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
-
-            for single in singles:
-                single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#BitAndExpression.
-    def exitBitAndExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = int_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#UnaryMinusExpression.
-    def enterUnaryMinusExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#UnaryMinusExpression.
-    def exitUnaryMinusExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = int_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#PreIncrementExpression.
-    def enterPreIncrementExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#PreIncrementExpression.
-    def exitPreIncrementExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ()
-
-            for leaf in ctx.leaves:
-                ty = leaf.getType (single.single)
-                if ty == int_:
-                    leaf.setType (single.single, failed_)
-                else:
-                    leaf.setType (single.single, int_)
-
-
-    # Enter a parse tree produced by ECMAScriptParser#
-    def enterFunctionExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.parent_f = self.current_f
-            if ctx.Identifier () is not None:
-                self.current_f = str (ctx.Identifier ())
-            else:
-                self.current_f = 'anonym_' + self.anonymIdx ()
-            params = ctx.formalParameterList ()
-
-            if not self.graph.__contains__ (self.current_f):
-                self.graph[self.current_f] = {'name':self.current_f, 'root':[], 'inferable':True, 'call':[], 'argv':[], 'argc':0, 'done':False, 'return':False, 'struct':{}}
-                node_root.append (self.graph[self.current_f])
-                if params is None:
-                    node = Node (root=True)
-                    self.graph[self.current_f]['root'].append (node)
-                    ctx.functionBody ().leaves = [node]
-                    node.setCtx (ctx)
-                else:
-                    self.graph[self.current_f]['argc'] = len (params.Identifier ())
-            else:
-                nodes = []
-                for arg in self.graph[self.current_f]['argv']:
-                    idx = self.graph[self.current_f]['argv'].index (arg)
-                    if hasattr (self.graph[self.current_f], idx):
-                        self.idx += 1
-                        self.graph[self.current_f]['idx'] = [self.idx]
-                    else:
-                        try:
-                            idx = self.graph[self.current_f]['idx']
-                        except ValueError:
-                            self.idx += 1
-                            self.graph[self.current_f]['idx'].append (self.idx)
-                    ret = self.graph[self.current_f]['call'][idx]
-                    if ret == noinfered_ or ret == unknown_:
-                        self.graph[self.current_f]['root'] = [n for n in self.graph[self.current_f]['root'] if n.getArg () != arg]
-                        self.graph[self.current_f]['struct'][str (arg)] = {}
-                        node = Node (root = True, arg = arg)
-                        if params is not None:
-                            i = 0
-                            if type (arg) is not list:
-                                arg = [arg]
-                            for param in params.Identifier ():
-                                node.setType (str (param), arg[i])
-                                i += 1
-                            self.graph[self.current_f]['inferable'] = False
-                            self.graph[self.current_f]['argc'] = len (params.Identifier ())
-                        nodes.append (node)
-                if len (nodes) != 0:
-                    ctx.functionBody ().leaves = list (nodes)
-                    self.graph[self.current_f]['root'].extend (nodes)
-                    self.graph[self.current_f]['done'] = False
-                    ctx.functionBody ().leaves[0].setCtx (ctx)
-
-    # Exit a parse tree produced by ECMAScriptParser#FunctionExpression.
-    def exitFunctionExpression(self, ctx):
-        cur = self.current_f
-        self.current_f = ctx.parent_f
-        if self.hasattr_t (ctx, 'leaves'):
-            if [] in self.graph[cur]['call'] and self.graph[cur]['return'] is True:
-                self.graph[cur]['done'] = False
-            elif unknown_ not in [ret for ret in self.graph[cur]['call']]:
-                self.graph[cur]['done'] = True
-            else:
-                self.graph[cur]['done'] = False
-            ctx.single = function_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#BitShiftExpression.
-    def enterBitShiftExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
-
-            for single in singles:
-                single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#BitShiftExpression.
-    def exitBitShiftExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = int_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#LogicalOrExpression.
-    def enterLogicalOrExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
-
-            for single in singles:
-                single.leaves  = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#LogicalOrExpression.
-    def exitLogicalOrExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = bool_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#VoidExpression.
-    def enterVoidExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#VoidExpression.
-    def exitVoidExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = failed_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#ParenthesizedExpression.
-    def enterParenthesizedExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.expressionSequence ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#ParenthesizedExpression.
-    def exitParenthesizedExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = ctx.expressionSequence ().single
-
-
-    # Enter a parse tree produced by ECMAScriptParser#UnaryPlusExpression.
-    def enterUnaryPlusExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#UnaryPlusExpression.
-    def exitUnaryPlusExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ()
-
-            for leaf in ctx.leaves:
-                ty = leaf.getType (single.single)
-                if ty != int_:
-                    leaf.setType (single.single, failed_)
-                else:
-                    leaf.setType (single.single, int_)
-
-
-    # Enter a parse tree produced by ECMAScriptParser#LiteralExpression.
-    def enterLiteralExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.literal ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#LiteralExpression.
-    def exitLiteralExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = ctx.literal ().single
-
-
-    # Enter a parse tree produced by ECMAScriptParser#BitNotExpression.
-    def enterBitNotExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#BitNotExpression.
-    def exitBitNotExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = bool_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#PostIncrementExpression.
-    def enterPostIncrementExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#PostIncrementExpression.
-    def exitPostIncrementExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ()
-
-            for leaf in ctx.leaves:
-                ty = leaf.getType (single.single)
-                if ty != int_:
-                    leaf.setType (single.single, failed_)
-                else:
-                    leaf.setType (single.single, int_)
-
-            ctx.single = int_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#TypeofExpression.
-    def enterTypeofExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#TypeofExpression.
-    def exitTypeofExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = string_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#AssignmentOperatorExpression.
-    def enterAssignmentOperatorExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-            ctx.expressionSequence ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#AssignmentOperatorExpression.
-    def exitAssignmentOperatorExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ()
-            assign = str (ctx.assignmentOperator ().getText ())
             seq = ctx.expressionSequence ()
 
+            seq.leaves = ctx.leaves
+            self.visit (seq)
+            single.leaves = ctx.leaves
+            self.visit (single)
+
+            for leaf in ctx.leaves:
+                ctx.value.append (leaf.getType (single.value) - (int_array_ - int_))
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#IdentifierExpression.
+    def visitIdentifierExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            ctx.value = str (ctx.Identifier ())
+        else:
+            self.visitChildren (ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#BitAndExpression.
+    def visitBitAndExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#BitOrExpression.
+    def visitBitOrExpression(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by ECMAScriptParser#AssignmentOperatorExpression.
+    def visitAssignmentOperatorExpression(self, ctx):
+        if self.hasattr_t (ctx, 'leaves'):
+            single = ctx.singleExpression ()
+            seq = ctx.expressionSequence ()
+
+            seq.leaves = ctx.leaves
+            self.visit (seq)
+            single.leaves = ctx.leaves
+            self.visit (single)
+
+            assign = str (ctx.assignmentOperator ().getText ())
+
             if assign == '+=':
-                ctx.single = []
-                idx = 0
+                ctx.value = []
                 for leaf in ctx.leaves:
-                    ty1 = leaf.getType (single.single)
-                    if type (seq.single) is list:
-                        ty = seq.single[0]
+                    ty1 = leaf.getType (single.value)
+                    if type (seq.value) is list:
+                        ty = seq.value[0]
                     else:
-                        ty = seq.single
+                        ty = seq.value (ty)
                     ty2 = leaf.getType (ty)
 
                     ty = ty1 if ty1 > ty2 else ty2
 
-                    leaf.setType (single.single, ty)
-                    ctx.single.append (ty)
-            elif assign == '*=' or assign == '/=' or assign == '-=' or assign == '%=':
-                ctx.single= []
+                    leaf.setType (single.value, ty)
+                    ctx.value.append (ty)
+            elif assign in ['*=', '/=', '-=', '%=']:
+                ctx.value = []
                 for leaf in ctx.leaves:
-                    ty1 = leaf.getType (single.single)
-                    if (type (seq.single)) is list:
-                        ty = seq.single[0]
+                    ty1 = leaf.getType (single.value)
+                    if type (seq.value) is list:
+                        ty = seq.value[0]
                     else:
-                        ty = seq.single
+                        ty = seq.value
                     ty2 = leaf.getType (ty)
 
                     ty = ty1 if ty1 > ty2 else ty2
 
                     if ty == int_:
-                        leaf.setType (single.single, ty)
+                        leaf.setType (single.value, ty)
                     else:
-                        leaf.setType (single.single, float_)
+                        leaf.setType (single.value, float_)
 
-                    ctx.single.append (ty)
+                    ctx.value.append (ty)
             else:
-                ctx.single = int_
+                ctx.value = int_
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#NewExpression.
-    def enterNewExpression(self, ctx):
-        if hasattr_t (ctx, 'leaves'):
-            ctx.singleExpression ().leaves = ctx.leaves
-            if ctx.arguments () is not None:
-                ctx.arguments ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#NewExpression.
-    def exitNewExpression(self, ctx):
-        if hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ()
-            for leaf in ctx.leaves:
-                leaf.setType (single.single, obj_)
+    # Visit a parse tree produced by ECMAScriptParser#VoidExpression.
+    def visitVoidExpression(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#PostDecreaseExpression.
-    def enterPostDecreaseExpression(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#assignmentOperator.
+    def visitAssignmentOperator(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
+            ctx.value = str (ctx.getText ())
+        else:
+            self.visitChildren (ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#PostDecreaseExpression.
-    def exitPostDecreaseExpression(self, ctx):
+
+    # Visit a parse tree produced by ECMAScriptParser#literal.
+    def visitLiteral(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            single = ctx.singleExpression ()
-
-            for leaf in ctx.leaves:
-                ty = leaf.getType (single.single)
-                if ty != int_:
-                    leaf.setType (single.single, failed_)
-                else:
-                    leaf.setType (single.single, int_)
-
-            ctx.single = int_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#RelationalExpression.
-    def enterRelationalExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
-
-            for single in singles:
-                single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#RelationalExpression.
-    def exitRelationalExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = bool_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#EqualityExpression.
-    def enterEqualityExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
-
-            for single in singles:
-                single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#EqualityExpression.
-    def exitEqualityExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = bool_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#BitXOrExpression.
-    def enterBitXOrExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            for single in ctx.singleExpression ():
-                single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#BitXOrExpression.
-    def exitBitXOrExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = int_
-
-
-    # Enter a parse tree produced by ECMAScriptParser#AdditiveExpression.
-    def enterAdditiveExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
-
-            for single in singles:
-                single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#AdditiveExpression.
-    def exitAdditiveExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            singles = ctx.singleExpression ()
-            ctx.single = []
-
-            for leaf in ctx.leaves:
-                if type (singles[0].single) is list:
-                    ty1 = leaf.getType (singles[0].single[0])
-                else:
-                    ty1 = leaf.getType (singles[0].single)
-                if type (singles[1].single) is list:
-                    ty2 = leaf.getType (singles[1].single[0])
-                else:
-                    ty2 = leaf.getType (singles[1].single)
-
-                ty = ty1 if ty1 > ty2 else ty2
-
-                ctx.single.append (ty)
-
-
-    # Enter a parse tree produced by ECMAScriptParser#MemberIndexExpression.
-    def enterMemberIndexExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            ctx.singleExpression ().leaves = ctx.leaves
-            ctx.expressionSequence ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#MemberIndexExpression.
-    def exitMemberIndexExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            for leaf in ctx.leaves:
-                ctx.single = ctx.singleExpression ().single
-
-
-    # Enter a parse tree produced by ECMAScriptParser#ThisExpression.
-    def enterThisExpression(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#ThisExpression.
-    def exitThisExpression(self, ctx):
-        pass
-
-
-    # Enter a parse tree produced by ECMAScriptParser#MultiplicativeExpression.
-    def enterMultiplicativeExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            singles = ctx.singleExpression ()
-
-            for single in singles:
-                single.leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#MultiplicativeExpression.
-    def exitMultiplicativeExpression(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            singles = ctx.singleExpression ()
-            ctx.single = []
-
-            for leaf in ctx.leaves:
-                if type (singles[0].single) is list:
-                    ty1 = leaf.getType (singles[0].single[0])
-                else:
-                    ty1 = leaf.getType (singles[0].single)
-                if type (singles[1].single) is list:
-                    ty2 = leaf.getType (singles[1].single[0])
-                else:
-                    ty2 = leaf.getType (singles[1].single)
-
-                ty = ty1 if ty1 > ty2 else ty2
-
-                if ty > float_:
-                    ty = float_
-
-                ctx.single.append (ty)
-
-
-    # Enter a parse tree produced by ECMAScriptParser#assignmentOperator.
-    def enterAssignmentOperator(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-
-    # Exit a parse tree produced by ECMAScriptParser#assignmentOperator.
-    def exitAssignmentOperator(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = str (ctx.getText ())
-
-
-    # Enter a parse tree produced by ECMAScriptParser#literal.
-    def enterLiteral(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-            if ctx.numericLiteral () is not None:
-                ctx.numericLiteral ().leaves = ctx.leaves
-
-    # Exit a parse tree produced by ECMAScriptParser#literal.
-    def exitLiteral(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            if ctx.numericLiteral () is not None:
-                ctx.single = ctx.numericLiteral ().single
+            ctx.value = []
+            num = ctx.numericLiteral ()
+            value = None
+            if num is not None:
+                num.leaves = ctx.leaves
+                self.visit (num)
+                value = num.value
             elif ctx.NullLiteral () is not None:
-                ctx.single = null_
+                value = null_
             elif ctx.BooleanLiteral () is not None:
-                ctx.single = bool_
+                value = bool_
             elif ctx.StringLiteral () is not None:
-                ctx.single = string_
-            elif ctx.numericLiteral () is not None:
-                ctx.single = ctx.numericLiteral ().single
+                value = string_
             else:
-                ctx.single = failed_
+                value = failed_
+            for leaf in ctx.leaves:
+                ctx.value.append (value)
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#numericLiteral.
-    def enterNumericLiteral(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-
-    # Exit a parse tree produced by ECMAScriptParser#numericLiteral.
-    def exitNumericLiteral(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#numericLiteral.
+    def visitNumericLiteral(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
             num = str (ctx.getText ())
 
             if '.' in num:
-                ctx.single = float_
+                ctx.value = float_
             else:
-                ctx.single = int_
+                ctx.value = int_
+
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#identifierName.
-    def enterIdentifierName(self, ctx):
+    # Visit a parse tree produced by ECMAScriptParser#identifierName.
+    def visitIdentifierName(self, ctx):
         if self.hasattr_t (ctx, 'leaves'):
-            ctx.leaves[0].setCtx (ctx)
-
-    # Exit a parse tree produced by ECMAScriptParser#identifierName.
-    def exitIdentifierName(self, ctx):
-        if self.hasattr_t (ctx, 'leaves'):
-            ctx.single = str (ctx.getText ())
+            ctx.value = str (ctx.getText ())
+        else:
+            self.visitChildren (ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#reservedWord.
-    def enterReservedWord(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#reservedWord.
-    def exitReservedWord(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#reservedWord.
+    def visitReservedWord(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#keyword.
-    def enterKeyword(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#keyword.
-    def exitKeyword(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#keyword.
+    def visitKeyword(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#futureReservedWord.
-    def enterFutureReservedWord(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#futureReservedWord.
-    def exitFutureReservedWord(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#futureReservedWord.
+    def visitFutureReservedWord(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#getter.
-    def enterGetter(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#getter.
-    def exitGetter(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#getter.
+    def visitGetter(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#setter.
-    def enterSetter(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#setter.
-    def exitSetter(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#setter.
+    def visitSetter(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#eos.
-    def enterEos(self, ctx):
-        pass
-
-    # Exit a parse tree produced by ECMAScriptParser#eos.
-    def exitEos(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#eos.
+    def visitEos(self, ctx):
+        return self.visitChildren(ctx)
 
 
-    # Enter a parse tree produced by ECMAScriptParser#eof.
-    def enterEof(self, ctx):
-        pass
+    # Visit a parse tree produced by ECMAScriptParser#eof.
+    def visitEof(self, ctx):
+        return self.visitChildren(ctx)
 
-    # Exit a parse tree produced by ECMAScriptParser#eof.
-    def exitEof(self, ctx):
-        pass
-
-def cfg_main (argv):
-    argv = [0,1]
-    argv[1] = 'wow3.js'
-    input_f = FileStream (argv[1])
-    lexer = ECMAScriptLexer (input_f)
-    stream = CommonTokenStream (lexer)
-
-    parser = ECMAScriptParser (stream)
-    tree = parser.program ()
-
-    listener = ECMAScriptCFG (argv[1])
-    walker = ParseTreeWalker ()
-    walker.walk (listener, tree)
-    idx = 0
-    while 1:
-        print (idx)
-        print [x['name'] for x in node_root]
-        print [x['done'] for x in node_root]
-        if False not in [x['done'] for x in node_root]:
-            break
-        walker.walk (listener, tree)
-        idx += 1
-    print (node_root)
-
-if __name__ == '__main__':
-    cfg_main (sys.argv)

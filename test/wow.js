@@ -1,10 +1,10 @@
 function wow (a,b) {
-	do {
+	for (i = 0; i < 10000; i ++) {
 		if (a % 2 == 0)
 			a *= a
 		else
 			a /= 10
-	}while (a < 1000);
+	}
 	return a + 10 * b, 10
 }
 
@@ -19,6 +19,7 @@ function wow2 (a) {
 
 function main () {
 	c = 2;
+	a = 1
 	
 	c += wow (1, 3)
 	c += wow2 (2)

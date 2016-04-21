@@ -628,11 +628,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_program
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitProgram"):
-                return visitor.visitProgram(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterProgram"):
+                listener.enterProgram(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitProgram"):
+                listener.exitProgram(self)
 
 
 
@@ -676,11 +678,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_sourceElements
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitSourceElements"):
-                return visitor.visitSourceElements(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterSourceElements"):
+                listener.enterSourceElements(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitSourceElements"):
+                listener.exitSourceElements(self)
 
 
 
@@ -730,11 +734,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_sourceElement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitSourceElement"):
-                return visitor.visitSourceElement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterSourceElement"):
+                listener.enterSourceElement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitSourceElement"):
+                listener.exitSourceElement(self)
 
 
 
@@ -836,11 +842,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_statement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitStatement"):
-                return visitor.visitStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterStatement"):
+                listener.enterStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitStatement"):
+                listener.exitStatement(self)
 
 
 
@@ -964,11 +972,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_block
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitBlock"):
-                return visitor.visitBlock(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBlock"):
+                listener.enterBlock(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBlock"):
+                listener.exitBlock(self)
 
 
 
@@ -1014,11 +1024,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_statementList
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitStatementList"):
-                return visitor.visitStatementList(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterStatementList"):
+                listener.enterStatementList(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitStatementList"):
+                listener.exitStatementList(self)
 
 
 
@@ -1071,11 +1083,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_variableStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitVariableStatement"):
-                return visitor.visitVariableStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterVariableStatement"):
+                listener.enterVariableStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitVariableStatement"):
+                listener.exitVariableStatement(self)
 
 
 
@@ -1116,11 +1130,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_variableDeclarationList
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitVariableDeclarationList"):
-                return visitor.visitVariableDeclarationList(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterVariableDeclarationList"):
+                listener.enterVariableDeclarationList(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitVariableDeclarationList"):
+                listener.exitVariableDeclarationList(self)
 
 
 
@@ -1170,11 +1186,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_variableDeclaration
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitVariableDeclaration"):
-                return visitor.visitVariableDeclaration(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterVariableDeclaration"):
+                listener.enterVariableDeclaration(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitVariableDeclaration"):
+                listener.exitVariableDeclaration(self)
 
 
 
@@ -1215,11 +1233,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_initialiser
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitInitialiser"):
-                return visitor.visitInitialiser(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterInitialiser"):
+                listener.enterInitialiser(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitInitialiser"):
+                listener.exitInitialiser(self)
 
 
 
@@ -1254,11 +1274,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_emptyStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitEmptyStatement"):
-                return visitor.visitEmptyStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterEmptyStatement"):
+                listener.enterEmptyStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitEmptyStatement"):
+                listener.exitEmptyStatement(self)
 
 
 
@@ -1296,11 +1318,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_expressionStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitExpressionStatement"):
-                return visitor.visitExpressionStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterExpressionStatement"):
+                listener.enterExpressionStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitExpressionStatement"):
+                listener.exitExpressionStatement(self)
 
 
 
@@ -1353,11 +1377,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_ifStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitIfStatement"):
-                return visitor.visitIfStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterIfStatement"):
+                listener.enterIfStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitIfStatement"):
+                listener.exitIfStatement(self)
 
 
 
@@ -1431,11 +1457,124 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.EosContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitDoStatement"):
-                return visitor.visitDoStatement(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterDoStatement"):
+                listener.enterDoStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitDoStatement"):
+                listener.exitDoStatement(self)
+
+
+    class ForVarInStatementContext(IterationStatementContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.IterationStatementContext)
+            super(ECMAScriptParser.ForVarInStatementContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def For(self):
+            return self.getToken(ECMAScriptParser.For, 0)
+        def Var(self):
+            return self.getToken(ECMAScriptParser.Var, 0)
+        def variableDeclaration(self):
+            return self.getTypedRuleContext(ECMAScriptParser.VariableDeclarationContext,0)
+
+        def In(self):
+            return self.getToken(ECMAScriptParser.In, 0)
+        def expressionSequence(self):
+            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
+
+        def statement(self):
+            return self.getTypedRuleContext(ECMAScriptParser.StatementContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterForVarInStatement"):
+                listener.enterForVarInStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitForVarInStatement"):
+                listener.exitForVarInStatement(self)
+
+
+    class ForStatementContext(IterationStatementContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.IterationStatementContext)
+            super(ECMAScriptParser.ForStatementContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def For(self):
+            return self.getToken(ECMAScriptParser.For, 0)
+        def statement(self):
+            return self.getTypedRuleContext(ECMAScriptParser.StatementContext,0)
+
+        def expressionSequence(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.ExpressionSequenceContext)
             else:
-                return visitor.visitChildren(self)
+                return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterForStatement"):
+                listener.enterForStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitForStatement"):
+                listener.exitForStatement(self)
+
+
+    class WhileStatementContext(IterationStatementContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.IterationStatementContext)
+            super(ECMAScriptParser.WhileStatementContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def While(self):
+            return self.getToken(ECMAScriptParser.While, 0)
+        def expressionSequence(self):
+            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
+
+        def statement(self):
+            return self.getTypedRuleContext(ECMAScriptParser.StatementContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterWhileStatement"):
+                listener.enterWhileStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitWhileStatement"):
+                listener.exitWhileStatement(self)
+
+
+    class ForInStatementContext(IterationStatementContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.IterationStatementContext)
+            super(ECMAScriptParser.ForInStatementContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def For(self):
+            return self.getToken(ECMAScriptParser.For, 0)
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+        def In(self):
+            return self.getToken(ECMAScriptParser.In, 0)
+        def expressionSequence(self):
+            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
+
+        def statement(self):
+            return self.getTypedRuleContext(ECMAScriptParser.StatementContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterForInStatement"):
+                listener.enterForInStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitForInStatement"):
+                listener.exitForInStatement(self)
 
 
     class ForVarStatementContext(IterationStatementContext):
@@ -1461,114 +1600,13 @@ class ECMAScriptParser ( Parser ):
                 return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,i)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitForVarStatement"):
-                return visitor.visitForVarStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterForVarStatement"):
+                listener.enterForVarStatement(self)
 
-
-    class ForVarInStatementContext(IterationStatementContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.IterationStatementContext)
-            super(ECMAScriptParser.ForVarInStatementContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def For(self):
-            return self.getToken(ECMAScriptParser.For, 0)
-        def Var(self):
-            return self.getToken(ECMAScriptParser.Var, 0)
-        def variableDeclaration(self):
-            return self.getTypedRuleContext(ECMAScriptParser.VariableDeclarationContext,0)
-
-        def In(self):
-            return self.getToken(ECMAScriptParser.In, 0)
-        def expressionSequence(self):
-            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
-
-        def statement(self):
-            return self.getTypedRuleContext(ECMAScriptParser.StatementContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitForVarInStatement"):
-                return visitor.visitForVarInStatement(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class WhileStatementContext(IterationStatementContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.IterationStatementContext)
-            super(ECMAScriptParser.WhileStatementContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def While(self):
-            return self.getToken(ECMAScriptParser.While, 0)
-        def expressionSequence(self):
-            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
-
-        def statement(self):
-            return self.getTypedRuleContext(ECMAScriptParser.StatementContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitWhileStatement"):
-                return visitor.visitWhileStatement(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class ForStatementContext(IterationStatementContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.IterationStatementContext)
-            super(ECMAScriptParser.ForStatementContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def For(self):
-            return self.getToken(ECMAScriptParser.For, 0)
-        def statement(self):
-            return self.getTypedRuleContext(ECMAScriptParser.StatementContext,0)
-
-        def expressionSequence(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.ExpressionSequenceContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,i)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitForStatement"):
-                return visitor.visitForStatement(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class ForInStatementContext(IterationStatementContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.IterationStatementContext)
-            super(ECMAScriptParser.ForInStatementContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def For(self):
-            return self.getToken(ECMAScriptParser.For, 0)
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-        def In(self):
-            return self.getToken(ECMAScriptParser.In, 0)
-        def expressionSequence(self):
-            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
-
-        def statement(self):
-            return self.getTypedRuleContext(ECMAScriptParser.StatementContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitForInStatement"):
-                return visitor.visitForInStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def exitRule(self, listener):
+            if hasattr(listener, "exitForVarStatement"):
+                listener.exitForVarStatement(self)
 
 
 
@@ -1755,11 +1793,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_continueStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitContinueStatement"):
-                return visitor.visitContinueStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterContinueStatement"):
+                listener.enterContinueStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitContinueStatement"):
+                listener.exitContinueStatement(self)
 
 
 
@@ -1808,11 +1848,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_breakStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitBreakStatement"):
-                return visitor.visitBreakStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBreakStatement"):
+                listener.enterBreakStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBreakStatement"):
+                listener.exitBreakStatement(self)
 
 
 
@@ -1862,11 +1904,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_returnStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitReturnStatement"):
-                return visitor.visitReturnStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterReturnStatement"):
+                listener.enterReturnStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitReturnStatement"):
+                listener.exitReturnStatement(self)
 
 
 
@@ -1916,11 +1960,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_withStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitWithStatement"):
-                return visitor.visitWithStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterWithStatement"):
+                listener.enterWithStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitWithStatement"):
+                listener.exitWithStatement(self)
 
 
 
@@ -1969,11 +2015,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_switchStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitSwitchStatement"):
-                return visitor.visitSwitchStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterSwitchStatement"):
+                listener.enterSwitchStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitSwitchStatement"):
+                listener.exitSwitchStatement(self)
 
 
 
@@ -2022,11 +2070,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_caseBlock
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitCaseBlock"):
-                return visitor.visitCaseBlock(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterCaseBlock"):
+                listener.enterCaseBlock(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitCaseBlock"):
+                listener.exitCaseBlock(self)
 
 
 
@@ -2087,11 +2137,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_caseClauses
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitCaseClauses"):
-                return visitor.visitCaseClauses(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterCaseClauses"):
+                listener.enterCaseClauses(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitCaseClauses"):
+                listener.exitCaseClauses(self)
 
 
 
@@ -2143,11 +2195,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_caseClause
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitCaseClause"):
-                return visitor.visitCaseClause(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterCaseClause"):
+                listener.enterCaseClause(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitCaseClause"):
+                listener.exitCaseClause(self)
 
 
 
@@ -2195,11 +2249,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_defaultClause
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitDefaultClause"):
-                return visitor.visitDefaultClause(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterDefaultClause"):
+                listener.enterDefaultClause(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitDefaultClause"):
+                listener.exitDefaultClause(self)
 
 
 
@@ -2245,11 +2301,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_labelledStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitLabelledStatement"):
-                return visitor.visitLabelledStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterLabelledStatement"):
+                listener.enterLabelledStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitLabelledStatement"):
+                listener.exitLabelledStatement(self)
 
 
 
@@ -2294,11 +2352,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_throwStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitThrowStatement"):
-                return visitor.visitThrowStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterThrowStatement"):
+                listener.enterThrowStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitThrowStatement"):
+                listener.exitThrowStatement(self)
 
 
 
@@ -2347,11 +2407,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_tryStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitTryStatement"):
-                return visitor.visitTryStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterTryStatement"):
+                listener.enterTryStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitTryStatement"):
+                listener.exitTryStatement(self)
 
 
 
@@ -2423,11 +2485,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_catchProduction
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitCatchProduction"):
-                return visitor.visitCatchProduction(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterCatchProduction"):
+                listener.enterCatchProduction(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitCatchProduction"):
+                listener.exitCatchProduction(self)
 
 
 
@@ -2472,11 +2536,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_finallyProduction
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitFinallyProduction"):
-                return visitor.visitFinallyProduction(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterFinallyProduction"):
+                listener.enterFinallyProduction(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitFinallyProduction"):
+                listener.exitFinallyProduction(self)
 
 
 
@@ -2515,11 +2581,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_debuggerStatement
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitDebuggerStatement"):
-                return visitor.visitDebuggerStatement(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterDebuggerStatement"):
+                listener.enterDebuggerStatement(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitDebuggerStatement"):
+                listener.exitDebuggerStatement(self)
 
 
 
@@ -2565,11 +2633,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_functionDeclaration
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitFunctionDeclaration"):
-                return visitor.visitFunctionDeclaration(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterFunctionDeclaration"):
+                listener.enterFunctionDeclaration(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitFunctionDeclaration"):
+                listener.exitFunctionDeclaration(self)
 
 
 
@@ -2625,11 +2695,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_formalParameterList
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitFormalParameterList"):
-                return visitor.visitFormalParameterList(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterFormalParameterList"):
+                listener.enterFormalParameterList(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitFormalParameterList"):
+                listener.exitFormalParameterList(self)
 
 
 
@@ -2676,11 +2748,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_functionBody
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitFunctionBody"):
-                return visitor.visitFunctionBody(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterFunctionBody"):
+                listener.enterFunctionBody(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitFunctionBody"):
+                listener.exitFunctionBody(self)
 
 
 
@@ -2723,11 +2797,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_arrayLiteral
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitArrayLiteral"):
-                return visitor.visitArrayLiteral(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterArrayLiteral"):
+                listener.enterArrayLiteral(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitArrayLiteral"):
+                listener.exitArrayLiteral(self)
 
 
 
@@ -2795,11 +2871,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_elementList
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitElementList"):
-                return visitor.visitElementList(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterElementList"):
+                listener.enterElementList(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitElementList"):
+                listener.exitElementList(self)
 
 
 
@@ -2858,11 +2936,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_elision
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitElision"):
-                return visitor.visitElision(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterElision"):
+                listener.enterElision(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitElision"):
+                listener.exitElision(self)
 
 
 
@@ -2907,11 +2987,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_objectLiteral
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitObjectLiteral"):
-                return visitor.visitObjectLiteral(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterObjectLiteral"):
+                listener.enterObjectLiteral(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitObjectLiteral"):
+                listener.exitObjectLiteral(self)
 
 
 
@@ -2965,11 +3047,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_propertyNameAndValueList
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPropertyNameAndValueList"):
-                return visitor.visitPropertyNameAndValueList(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPropertyNameAndValueList"):
+                listener.enterPropertyNameAndValueList(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPropertyNameAndValueList"):
+                listener.exitPropertyNameAndValueList(self)
 
 
 
@@ -3019,6 +3103,28 @@ class ECMAScriptParser ( Parser ):
 
 
 
+    class PropertyGetterContext(PropertyAssignmentContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.PropertyAssignmentContext)
+            super(ECMAScriptParser.PropertyGetterContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def getter(self):
+            return self.getTypedRuleContext(ECMAScriptParser.GetterContext,0)
+
+        def functionBody(self):
+            return self.getTypedRuleContext(ECMAScriptParser.FunctionBodyContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPropertyGetter"):
+                listener.enterPropertyGetter(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPropertyGetter"):
+                listener.exitPropertyGetter(self)
+
+
     class PropertyExpressionAssignmentContext(PropertyAssignmentContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.PropertyAssignmentContext)
@@ -3032,11 +3138,13 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPropertyExpressionAssignment"):
-                return visitor.visitPropertyExpressionAssignment(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPropertyExpressionAssignment"):
+                listener.enterPropertyExpressionAssignment(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPropertyExpressionAssignment"):
+                listener.exitPropertyExpressionAssignment(self)
 
 
     class PropertySetterContext(PropertyAssignmentContext):
@@ -3055,31 +3163,13 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.FunctionBodyContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPropertySetter"):
-                return visitor.visitPropertySetter(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPropertySetter"):
+                listener.enterPropertySetter(self)
 
-
-    class PropertyGetterContext(PropertyAssignmentContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.PropertyAssignmentContext)
-            super(ECMAScriptParser.PropertyGetterContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def getter(self):
-            return self.getTypedRuleContext(ECMAScriptParser.GetterContext,0)
-
-        def functionBody(self):
-            return self.getTypedRuleContext(ECMAScriptParser.FunctionBodyContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPropertyGetter"):
-                return visitor.visitPropertyGetter(self)
-            else:
-                return visitor.visitChildren(self)
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPropertySetter"):
+                listener.exitPropertySetter(self)
 
 
 
@@ -3166,11 +3256,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_propertyName
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPropertyName"):
-                return visitor.visitPropertyName(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPropertyName"):
+                listener.enterPropertyName(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPropertyName"):
+                listener.exitPropertyName(self)
 
 
 
@@ -3220,11 +3312,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_propertySetParameterList
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPropertySetParameterList"):
-                return visitor.visitPropertySetParameterList(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPropertySetParameterList"):
+                listener.enterPropertySetParameterList(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPropertySetParameterList"):
+                listener.exitPropertySetParameterList(self)
 
 
 
@@ -3258,11 +3352,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_arguments
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitArguments"):
-                return visitor.visitArguments(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterArguments"):
+                listener.enterArguments(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitArguments"):
+                listener.exitArguments(self)
 
 
 
@@ -3309,11 +3405,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_argumentList
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitArgumentList"):
-                return visitor.visitArgumentList(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterArgumentList"):
+                listener.enterArgumentList(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitArgumentList"):
+                listener.exitArgumentList(self)
 
 
 
@@ -3363,11 +3461,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_expressionSequence
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitExpressionSequence"):
-                return visitor.visitExpressionSequence(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterExpressionSequence"):
+                listener.enterExpressionSequence(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitExpressionSequence"):
+                listener.exitExpressionSequence(self)
 
 
 
@@ -3429,11 +3529,57 @@ class ECMAScriptParser ( Parser ):
                 return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitTernaryExpression"):
-                return visitor.visitTernaryExpression(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterTernaryExpression"):
+                listener.enterTernaryExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitTernaryExpression"):
+                listener.exitTernaryExpression(self)
+
+
+    class BitOrExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.BitOrExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
             else:
-                return visitor.visitChildren(self)
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBitOrExpression"):
+                listener.enterBitOrExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBitOrExpression"):
+                listener.exitBitOrExpression(self)
+
+
+    class AssignmentExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.AssignmentExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+        def expressionSequence(self):
+            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterAssignmentExpression"):
+                listener.enterAssignmentExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitAssignmentExpression"):
+                listener.exitAssignmentExpression(self)
 
 
     class LogicalAndExpressionContext(SingleExpressionContext):
@@ -3449,28 +3595,37 @@ class ECMAScriptParser ( Parser ):
                 return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitLogicalAndExpression"):
-                return visitor.visitLogicalAndExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterLogicalAndExpression"):
+                listener.enterLogicalAndExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitLogicalAndExpression"):
+                listener.exitLogicalAndExpression(self)
 
 
-    class PreIncrementExpressionContext(SingleExpressionContext):
+    class InstanceofExpressionContext(SingleExpressionContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.PreIncrementExpressionContext, self).__init__(parser)
+            super(ECMAScriptParser.InstanceofExpressionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPreIncrementExpression"):
-                return visitor.visitPreIncrementExpression(self)
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
             else:
-                return visitor.visitChildren(self)
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+        def Instanceof(self):
+            return self.getToken(ECMAScriptParser.Instanceof, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterInstanceofExpression"):
+                listener.enterInstanceofExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitInstanceofExpression"):
+                listener.exitInstanceofExpression(self)
 
 
     class ObjectLiteralExpressionContext(SingleExpressionContext):
@@ -3483,11 +3638,32 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.ObjectLiteralContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitObjectLiteralExpression"):
-                return visitor.visitObjectLiteralExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterObjectLiteralExpression"):
+                listener.enterObjectLiteralExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitObjectLiteralExpression"):
+                listener.exitObjectLiteralExpression(self)
+
+
+    class PreDecreaseExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.PreDecreaseExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPreDecreaseExpression"):
+                listener.enterPreDecreaseExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPreDecreaseExpression"):
+                listener.exitPreDecreaseExpression(self)
 
 
     class InExpressionContext(SingleExpressionContext):
@@ -3505,65 +3681,32 @@ class ECMAScriptParser ( Parser ):
         def In(self):
             return self.getToken(ECMAScriptParser.In, 0)
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitInExpression"):
-                return visitor.visitInExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterInExpression"):
+                listener.enterInExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitInExpression"):
+                listener.exitInExpression(self)
 
 
-    class LogicalOrExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.LogicalOrExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitLogicalOrExpression"):
-                return visitor.visitLogicalOrExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class NotExpressionContext(SingleExpressionContext):
+    class ArrayLiteralExpressionContext(SingleExpressionContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.NotExpressionContext, self).__init__(parser)
+            super(ECMAScriptParser.ArrayLiteralExpressionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+        def arrayLiteral(self):
+            return self.getTypedRuleContext(ECMAScriptParser.ArrayLiteralContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitNotExpression"):
-                return visitor.visitNotExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterArrayLiteralExpression"):
+                listener.enterArrayLiteralExpression(self)
 
-
-    class PreDecreaseExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.PreDecreaseExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPreDecreaseExpression"):
-                return visitor.visitPreDecreaseExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def exitRule(self, listener):
+            if hasattr(listener, "exitArrayLiteralExpression"):
+                listener.exitArrayLiteralExpression(self)
 
 
     class ArgumentsExpressionContext(SingleExpressionContext):
@@ -3579,27 +3722,153 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.ArgumentsContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitArgumentsExpression"):
-                return visitor.visitArgumentsExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterArgumentsExpression"):
+                listener.enterArgumentsExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitArgumentsExpression"):
+                listener.exitArgumentsExpression(self)
 
 
-    class ThisExpressionContext(SingleExpressionContext):
+    class MemberDotExpressionContext(SingleExpressionContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.ThisExpressionContext, self).__init__(parser)
+            super(ECMAScriptParser.MemberDotExpressionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
-        def This(self):
-            return self.getToken(ECMAScriptParser.This, 0)
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitThisExpression"):
-                return visitor.visitThisExpression(self)
+        def identifierName(self):
+            return self.getTypedRuleContext(ECMAScriptParser.IdentifierNameContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterMemberDotExpression"):
+                listener.enterMemberDotExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitMemberDotExpression"):
+                listener.exitMemberDotExpression(self)
+
+
+    class NotExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.NotExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterNotExpression"):
+                listener.enterNotExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitNotExpression"):
+                listener.exitNotExpression(self)
+
+
+    class DeleteExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.DeleteExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def Delete(self):
+            return self.getToken(ECMAScriptParser.Delete, 0)
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterDeleteExpression"):
+                listener.enterDeleteExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitDeleteExpression"):
+                listener.exitDeleteExpression(self)
+
+
+    class IdentifierExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.IdentifierExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def Identifier(self):
+            return self.getToken(ECMAScriptParser.Identifier, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterIdentifierExpression"):
+                listener.enterIdentifierExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitIdentifierExpression"):
+                listener.exitIdentifierExpression(self)
+
+
+    class BitAndExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.BitAndExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
             else:
-                return visitor.visitChildren(self)
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBitAndExpression"):
+                listener.enterBitAndExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBitAndExpression"):
+                listener.exitBitAndExpression(self)
+
+
+    class UnaryMinusExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.UnaryMinusExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterUnaryMinusExpression"):
+                listener.enterUnaryMinusExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitUnaryMinusExpression"):
+                listener.exitUnaryMinusExpression(self)
+
+
+    class PreIncrementExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.PreIncrementExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPreIncrementExpression"):
+                listener.enterPreIncrementExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPreIncrementExpression"):
+                listener.exitPreIncrementExpression(self)
 
 
     class FunctionExpressionContext(SingleExpressionContext):
@@ -3619,202 +3888,13 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.FormalParameterListContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitFunctionExpression"):
-                return visitor.visitFunctionExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterFunctionExpression"):
+                listener.enterFunctionExpression(self)
 
-
-    class UnaryMinusExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.UnaryMinusExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitUnaryMinusExpression"):
-                return visitor.visitUnaryMinusExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class PostDecreaseExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.PostDecreaseExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPostDecreaseExpression"):
-                return visitor.visitPostDecreaseExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class AssignmentExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.AssignmentExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-        def expressionSequence(self):
-            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitAssignmentExpression"):
-                return visitor.visitAssignmentExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class TypeofExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.TypeofExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def Typeof(self):
-            return self.getToken(ECMAScriptParser.Typeof, 0)
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitTypeofExpression"):
-                return visitor.visitTypeofExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class InstanceofExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.InstanceofExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
-
-        def Instanceof(self):
-            return self.getToken(ECMAScriptParser.Instanceof, 0)
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitInstanceofExpression"):
-                return visitor.visitInstanceofExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class UnaryPlusExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.UnaryPlusExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitUnaryPlusExpression"):
-                return visitor.visitUnaryPlusExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class DeleteExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.DeleteExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def Delete(self):
-            return self.getToken(ECMAScriptParser.Delete, 0)
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitDeleteExpression"):
-                return visitor.visitDeleteExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class EqualityExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.EqualityExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitEqualityExpression"):
-                return visitor.visitEqualityExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class BitXOrExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.BitXOrExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitBitXOrExpression"):
-                return visitor.visitBitXOrExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class MultiplicativeExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.MultiplicativeExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitMultiplicativeExpression"):
-                return visitor.visitMultiplicativeExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def exitRule(self, listener):
+            if hasattr(listener, "exitFunctionExpression"):
+                listener.exitFunctionExpression(self)
 
 
     class BitShiftExpressionContext(SingleExpressionContext):
@@ -3830,11 +3910,56 @@ class ECMAScriptParser ( Parser ):
                 return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitBitShiftExpression"):
-                return visitor.visitBitShiftExpression(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBitShiftExpression"):
+                listener.enterBitShiftExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBitShiftExpression"):
+                listener.exitBitShiftExpression(self)
+
+
+    class LogicalOrExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.LogicalOrExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
             else:
-                return visitor.visitChildren(self)
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterLogicalOrExpression"):
+                listener.enterLogicalOrExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitLogicalOrExpression"):
+                listener.exitLogicalOrExpression(self)
+
+
+    class VoidExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.VoidExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def Void(self):
+            return self.getToken(ECMAScriptParser.Void, 0)
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterVoidExpression"):
+                listener.enterVoidExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitVoidExpression"):
+                listener.exitVoidExpression(self)
 
 
     class ParenthesizedExpressionContext(SingleExpressionContext):
@@ -3847,107 +3972,32 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitParenthesizedExpression"):
-                return visitor.visitParenthesizedExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterParenthesizedExpression"):
+                listener.enterParenthesizedExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitParenthesizedExpression"):
+                listener.exitParenthesizedExpression(self)
 
 
-    class AdditiveExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.AdditiveExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitAdditiveExpression"):
-                return visitor.visitAdditiveExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class RelationalExpressionContext(SingleExpressionContext):
+    class UnaryPlusExpressionContext(SingleExpressionContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.RelationalExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitRelationalExpression"):
-                return visitor.visitRelationalExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class PostIncrementExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.PostIncrementExpressionContext, self).__init__(parser)
+            super(ECMAScriptParser.UnaryPlusExpressionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
         def singleExpression(self):
             return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitPostIncrementExpression"):
-                return visitor.visitPostIncrementExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterUnaryPlusExpression"):
+                listener.enterUnaryPlusExpression(self)
 
-
-    class BitNotExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.BitNotExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitBitNotExpression"):
-                return visitor.visitBitNotExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class NewExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.NewExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def New(self):
-            return self.getToken(ECMAScriptParser.New, 0)
-        def singleExpression(self):
-            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
-
-        def arguments(self):
-            return self.getTypedRuleContext(ECMAScriptParser.ArgumentsContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitNewExpression"):
-                return visitor.visitNewExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def exitRule(self, listener):
+            if hasattr(listener, "exitUnaryPlusExpression"):
+                listener.exitUnaryPlusExpression(self)
 
 
     class LiteralExpressionContext(SingleExpressionContext):
@@ -3960,124 +4010,72 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.LiteralContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitLiteralExpression"):
-                return visitor.visitLiteralExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterLiteralExpression"):
+                listener.enterLiteralExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitLiteralExpression"):
+                listener.exitLiteralExpression(self)
 
 
-    class ArrayLiteralExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.ArrayLiteralExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def arrayLiteral(self):
-            return self.getTypedRuleContext(ECMAScriptParser.ArrayLiteralContext,0)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitArrayLiteralExpression"):
-                return visitor.visitArrayLiteralExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class MemberDotExpressionContext(SingleExpressionContext):
+    class BitNotExpressionContext(SingleExpressionContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.MemberDotExpressionContext, self).__init__(parser)
+            super(ECMAScriptParser.BitNotExpressionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
         def singleExpression(self):
             return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
 
-        def identifierName(self):
-            return self.getTypedRuleContext(ECMAScriptParser.IdentifierNameContext,0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBitNotExpression"):
+                listener.enterBitNotExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBitNotExpression"):
+                listener.exitBitNotExpression(self)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitMemberDotExpression"):
-                return visitor.visitMemberDotExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class MemberIndexExpressionContext(SingleExpressionContext):
+    class PostIncrementExpressionContext(SingleExpressionContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.MemberIndexExpressionContext, self).__init__(parser)
+            super(ECMAScriptParser.PostIncrementExpressionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
         def singleExpression(self):
             return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
 
-        def expressionSequence(self):
-            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPostIncrementExpression"):
+                listener.enterPostIncrementExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPostIncrementExpression"):
+                listener.exitPostIncrementExpression(self)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitMemberIndexExpression"):
-                return visitor.visitMemberIndexExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class IdentifierExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.IdentifierExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def Identifier(self):
-            return self.getToken(ECMAScriptParser.Identifier, 0)
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitIdentifierExpression"):
-                return visitor.visitIdentifierExpression(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-    class BitAndExpressionContext(SingleExpressionContext):
+    class TypeofExpressionContext(SingleExpressionContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.BitAndExpressionContext, self).__init__(parser)
+            super(ECMAScriptParser.TypeofExpressionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+        def Typeof(self):
+            return self.getToken(ECMAScriptParser.Typeof, 0)
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitBitAndExpression"):
-                return visitor.visitBitAndExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterTypeofExpression"):
+                listener.enterTypeofExpression(self)
 
-
-    class BitOrExpressionContext(SingleExpressionContext):
-
-        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.BitOrExpressionContext, self).__init__(parser)
-            self.copyFrom(ctx)
-
-        def singleExpression(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
-            else:
-                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
-
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitBitOrExpression"):
-                return visitor.visitBitOrExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def exitRule(self, listener):
+            if hasattr(listener, "exitTypeofExpression"):
+                listener.exitTypeofExpression(self)
 
 
     class AssignmentOperatorExpressionContext(SingleExpressionContext):
@@ -4096,30 +4094,206 @@ class ECMAScriptParser ( Parser ):
             return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitAssignmentOperatorExpression"):
-                return visitor.visitAssignmentOperatorExpression(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterAssignmentOperatorExpression"):
+                listener.enterAssignmentOperatorExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitAssignmentOperatorExpression"):
+                listener.exitAssignmentOperatorExpression(self)
 
 
-    class VoidExpressionContext(SingleExpressionContext):
+    class NewExpressionContext(SingleExpressionContext):
 
         def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
-            super(ECMAScriptParser.VoidExpressionContext, self).__init__(parser)
+            super(ECMAScriptParser.NewExpressionContext, self).__init__(parser)
             self.copyFrom(ctx)
 
-        def Void(self):
-            return self.getToken(ECMAScriptParser.Void, 0)
+        def New(self):
+            return self.getToken(ECMAScriptParser.New, 0)
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+        def arguments(self):
+            return self.getTypedRuleContext(ECMAScriptParser.ArgumentsContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterNewExpression"):
+                listener.enterNewExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitNewExpression"):
+                listener.exitNewExpression(self)
+
+
+    class PostDecreaseExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.PostDecreaseExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
         def singleExpression(self):
             return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
 
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitVoidExpression"):
-                return visitor.visitVoidExpression(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterPostDecreaseExpression"):
+                listener.enterPostDecreaseExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitPostDecreaseExpression"):
+                listener.exitPostDecreaseExpression(self)
+
+
+    class RelationalExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.RelationalExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
             else:
-                return visitor.visitChildren(self)
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterRelationalExpression"):
+                listener.enterRelationalExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitRelationalExpression"):
+                listener.exitRelationalExpression(self)
+
+
+    class EqualityExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.EqualityExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
+            else:
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterEqualityExpression"):
+                listener.enterEqualityExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitEqualityExpression"):
+                listener.exitEqualityExpression(self)
+
+
+    class BitXOrExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.BitXOrExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
+            else:
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterBitXOrExpression"):
+                listener.enterBitXOrExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitBitXOrExpression"):
+                listener.exitBitXOrExpression(self)
+
+
+    class AdditiveExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.AdditiveExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
+            else:
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterAdditiveExpression"):
+                listener.enterAdditiveExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitAdditiveExpression"):
+                listener.exitAdditiveExpression(self)
+
+
+    class ThisExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.ThisExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def This(self):
+            return self.getToken(ECMAScriptParser.This, 0)
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterThisExpression"):
+                listener.enterThisExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitThisExpression"):
+                listener.exitThisExpression(self)
+
+
+    class MemberIndexExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.MemberIndexExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self):
+            return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,0)
+
+        def expressionSequence(self):
+            return self.getTypedRuleContext(ECMAScriptParser.ExpressionSequenceContext,0)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterMemberIndexExpression"):
+                listener.enterMemberIndexExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitMemberIndexExpression"):
+                listener.exitMemberIndexExpression(self)
+
+
+    class MultiplicativeExpressionContext(SingleExpressionContext):
+
+        def __init__(self, parser, ctx): # actually a ECMAScriptParser.SingleExpressionContext)
+            super(ECMAScriptParser.MultiplicativeExpressionContext, self).__init__(parser)
+            self.copyFrom(ctx)
+
+        def singleExpression(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(ECMAScriptParser.SingleExpressionContext)
+            else:
+                return self.getTypedRuleContext(ECMAScriptParser.SingleExpressionContext,i)
+
+
+        def enterRule(self, listener):
+            if hasattr(listener, "enterMultiplicativeExpression"):
+                listener.enterMultiplicativeExpression(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitMultiplicativeExpression"):
+                listener.exitMultiplicativeExpression(self)
 
 
 
@@ -4635,11 +4809,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_assignmentOperator
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitAssignmentOperator"):
-                return visitor.visitAssignmentOperator(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterAssignmentOperator"):
+                listener.enterAssignmentOperator(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitAssignmentOperator"):
+                listener.exitAssignmentOperator(self)
 
 
 
@@ -4690,11 +4866,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_literal
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitLiteral"):
-                return visitor.visitLiteral(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterLiteral"):
+                listener.enterLiteral(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitLiteral"):
+                listener.exitLiteral(self)
 
 
 
@@ -4750,11 +4928,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_numericLiteral
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitNumericLiteral"):
-                return visitor.visitNumericLiteral(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterNumericLiteral"):
+                listener.enterNumericLiteral(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitNumericLiteral"):
+                listener.exitNumericLiteral(self)
 
 
 
@@ -4796,11 +4976,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_identifierName
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitIdentifierName"):
-                return visitor.visitIdentifierName(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterIdentifierName"):
+                listener.enterIdentifierName(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitIdentifierName"):
+                listener.exitIdentifierName(self)
 
 
 
@@ -4856,11 +5038,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_reservedWord
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitReservedWord"):
-                return visitor.visitReservedWord(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterReservedWord"):
+                listener.enterReservedWord(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitReservedWord"):
+                listener.exitReservedWord(self)
 
 
 
@@ -4990,11 +5174,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_keyword
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitKeyword"):
-                return visitor.visitKeyword(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterKeyword"):
+                listener.enterKeyword(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitKeyword"):
+                listener.exitKeyword(self)
 
 
 
@@ -5077,11 +5263,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_futureReservedWord
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitFutureReservedWord"):
-                return visitor.visitFutureReservedWord(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterFutureReservedWord"):
+                listener.enterFutureReservedWord(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitFutureReservedWord"):
+                listener.exitFutureReservedWord(self)
 
 
 
@@ -5119,11 +5307,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_getter
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitGetter"):
-                return visitor.visitGetter(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterGetter"):
+                listener.enterGetter(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitGetter"):
+                listener.exitGetter(self)
 
 
 
@@ -5160,11 +5350,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_setter
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitSetter"):
-                return visitor.visitSetter(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterSetter"):
+                listener.enterSetter(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitSetter"):
+                listener.exitSetter(self)
 
 
 
@@ -5204,11 +5396,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_eos
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitEos"):
-                return visitor.visitEos(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterEos"):
+                listener.enterEos(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitEos"):
+                listener.exitEos(self)
 
 
 
@@ -5269,11 +5463,13 @@ class ECMAScriptParser ( Parser ):
         def getRuleIndex(self):
             return ECMAScriptParser.RULE_eof
 
-        def accept(self, visitor):
-            if hasattr(visitor, "visitEof"):
-                return visitor.visitEof(self)
-            else:
-                return visitor.visitChildren(self)
+        def enterRule(self, listener):
+            if hasattr(listener, "enterEof"):
+                listener.enterEof(self)
+
+        def exitRule(self, listener):
+            if hasattr(listener, "exitEof"):
+                listener.exitEof(self)
 
 
 

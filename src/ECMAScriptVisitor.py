@@ -6,10 +6,121 @@ from antlr4 import *
 
 # This class defines a complete generic visitor for a parse tree produced by ECMAScriptParser.
 
-class ECMAScriptLLVMEmitter(ParseTreeVisitor):
+class Node:
+    def __init__ (self, isRoot = False, arg = [], ifNode = False):
+        self.cld = []
+        self.nxt = None
+        self.var = {}
+        self.arg = arg
+        self.inst = {}
+        self.ifNode = ifNode
+        self.bb = None
+        self.symTable = {}
+        if isRoot:
+            self.root = self
+        else:
+            self.root = None
 
-    def __init__ (self, graph, filename):
-        self.graph = graph
+    def cacheInst (self, var, inst):
+        self.inst[var] = inst
+
+    def getInst (self, var):
+        return self.inst.setdefault (var, None)
+
+    def isIf (self):
+        return self.ifNode
+
+    def getSymTable (self):
+        return self.symTable
+
+    def inheritSymTable (self, parent):
+        self.symTable = dict (parent)
+
+    def setSym (self, var, ty, idx = None):
+        if dix is None:
+            self.symTable[var] = ty
+        else:
+            self.symTable[var][idx] = ty
+
+    def getSym (self, var, idx = None):
+        if idx is None:
+            return self.symTable.setdefault (var, var)
+        else:
+            return self.symTable[var].setdefault (idx, var)
+
+    def hasSym (self, var):
+        return self.symTable.has_key (var)
+
+    def setFunc (self, func, funcName):
+        self.func = func
+        self.func_name = funcName
+
+    def getFunc (self):
+        return self.func
+
+    def getFuncName (self):
+        return self.funcName
+
+    def setBB (self, bb):
+        self.bb = bb
+
+    def getBB (self):
+        return self.bb
+
+    def getArg (self):
+        return self.arg
+
+    def appendChild (self, cld):
+        cld.root = self.root
+        cld.var = dict (self.var)
+        cld.arg = self.arg
+
+        l = len (self.cld)
+        if l != 0:
+            self.cld[-1].nxt = cld
+
+        self.cld.append (cld)
+
+        return cld
+
+    def getChild (self):
+        if len (self.cld) == 0:
+            return None
+
+        return self.cld
+
+    def getVar (self):
+        return self.var
+
+    def delVar (var):
+        del self.var[var]
+
+    def setType (self, var, ty):
+        if type (ty) is list:
+            print 'type of \'ty\' is list!\n\t' + str (ty) + '\n'
+            traceback.print_stack ()
+
+        if type(var) is not str:
+            print 'type of \'ty\' is not str!\n\t' + str (ty) + '\n'
+
+        if var in self.var:
+            if self.var != ty:
+                self.var[var].append (ty)
+        else:
+            self.var[var] = [ty]
+
+    def getType (self, var):
+        ty = self.var.setdefault (var, var)
+
+        if ty == var:
+            return ty
+        else:
+            return ty[-1]
+
+class ECMAScriptVisitor(ParseTreeVisitor):
+
+    def __init__ (self, filename):
+        self.graph = {}
         self.idx = 0
         self.current_f = 'global'
 
