@@ -4,7 +4,7 @@ Javascript LLVM FrontEnd targeting Emscripten (personal project)
 ## Requirements
 * [Python 2.7](http://https://www.python.org/download/releases/2.7/)
 * [Antlr4](http://http://www.antlr.org/)
-* [llvmpy 0.12.7](http://www.llvmpy.org/)
+* [llvmlite v0.10.0](http:/llvmlite.pydata.org/en/latest)
 
 ## Execution
 $> python ECMAScriptMain.py [file name]
